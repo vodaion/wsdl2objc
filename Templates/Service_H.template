@@ -1,0 +1,22 @@
+/* Cookies handling provided by http://en.wikibooks.org/wiki/Programming:WebObjects/Web_Services/Web_Service_Provider */
+
+#import <libxml/parser.h>
+%FOREACH schema in schema.wsdl.schemas
+%IFNOT schema.shouldNotWriteString
+#import "%«schema.prefix».h"
+%ENDIF
+%ENDFOR
+
+%FOREACH port in ports
+@class %«port.binding.className»;
+%ENDFOR
+
+@interface %«className» : NSObject {
+	
+}
+
+%FOREACH port in ports
++ (%«port.binding.className» *)%«port.binding.className»;
+%ENDFOR
+
+@end
