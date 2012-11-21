@@ -5,7 +5,9 @@
 - (void) operation:(%«className»Operation *)operation completedWithResponse:(%«className»Response *)response;
 @end
 
-typedef void (^%«className»CompletionBlock)(%«className»Operation * operation, %«className»Response *response);
+#if NS_BLOCKS_AVAILABLE
+typedef void (^%«className»Block)(%«className»Operation *operation, %«className»Response *response);
+#endif
 
 #define kServerAnchorCertificates   @"kServerAnchorCertificates"
 #define kServerAnchorsOnly          @"kServerAnchorsOnly"
@@ -52,7 +54,11 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 %FOREACH operation in operations
 - (%«className»Response *)%«operation.invokeString»;
 - (%«className»_%«operation.className» *)%«operation.asyncInvokeString» delegate:(id<%«className»ResponseDelegate>)responseDelegate;
-- (void)%«operation.asyncInvokeString» completionBlock:(%«className»CompletionBlock)responseCompletionBlock;
+
+#if NS_BLOCKS_AVAILABLE
+- (void)%«operation.asyncInvokeString» completionBlock:(%«className»Block)responseCompletionBlock;
+#endif
+
 %ENDFOR
 
 @end
@@ -63,23 +69,36 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 	
 
 	id<%«className»ResponseDelegate> delegate;
-	// completion block
-	%«className»CompletionBlock completionBlock;
 
 	NSMutableData *responseData;
 	NSURLConnection *urlConnection;
+	
+	
+#if NS_BLOCKS_AVAILABLE
+	//block to execute when request completes successfully
+	%«className»Block completionBlock;
+#endif
 }
 
 @property (nonatomic, retain) %«className» *binding;
 @property (nonatomic, readonly) %«className»Response *response;
 @property (nonatomic, assign) id<%«className»ResponseDelegate> delegate;
-@property (nonatomic, copy) %«className»CompletionBlock completionBlock;
+
+
+#if NS_BLOCKS_AVAILABLE
+@property (nonatomic, setter = setCompletionBlock:) %«className»Block completionBlock;
+#endif
+
 
 @property (nonatomic, retain) NSMutableData *responseData;
 @property (nonatomic, retain) NSURLConnection *urlConnection;
 
 - (id)initWithBinding:(%«className» *)aBinding delegate:(id<%«className»ResponseDelegate>)aDelegate;
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»CompletionBlock)responseCompletionBlock;
+
+#if NS_BLOCKS_AVAILABLE
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock;
+#endif
+
 @end
 
 %FOREACH operation in operations
@@ -112,7 +131,9 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 %ENDFOR
 ;
 
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»CompletionBlock)responseCompletionBlock
+
+#if NS_BLOCKS_AVAILABLE
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
 %FOREACH part in operation.input.body.parts
 	%«part.name»:(%«part.element.type.classNameWithPtr»)a%«part.uname»
 %ENDFOR
@@ -120,6 +141,7 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 	%«header.name»:(%«header.type.classNameWithPtr»)a%«header.uname»
 %ENDFOR
 ;
+#endif
 @end
 %ENDFOR
 
@@ -130,7 +152,6 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 + (%«className»_envelope *)sharedInstance;
 
 - (NSString *)serializedFormUsingHeaderElements:(NSDictionary *)headerElements bodyElements:(NSDictionary *)bodyElements bodyKeys:(NSArray *)bodyKeys;
-
 @end
 
 @interface %«className»Response : NSObject {

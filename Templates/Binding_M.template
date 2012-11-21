@@ -112,19 +112,22 @@
 	return objWithOperation;
 }
 
-- (void)%«operation.asyncInvokeString» completionBlock:(%«className»CompletionBlock)responseCompletionBlock
+#pragma mark -
+#pragma mark blocks
+#if NS_BLOCKS_AVAILABLE
+- (void)%«operation.asyncInvokeString» completionBlock:(%«className»Block)responseCompletionBlock
 {
-	id objWithOperation = [[(%«className»_%«operation.className»*)[%«className»_%«operation.className» alloc] initWithBinding:self completionBlock:responseCompletionBlock
+	[self performAsynchronousOperation:[[(%«className»_%«operation.className»*)[%«className»_%«operation.className» alloc] initWithBinding:self completionBlock:responseCompletionBlock
 %FOREACH part in operation.input.body.parts
 																							 %«part.name»:a%«part.uname»
 %ENDFOR
 %FOREACH header in operation.input.headers
 																							 %«header.name»:a%«header.uname»
 %ENDFOR
-						  ] autorelease];
-
-	[self performAsynchronousOperation:objWithOperation];
+						  ] autorelease]];
 }
+#endif
+
 %ENDFOR
 
 - (void)sendHTTPCallUsingBody:(NSString *)outputBody soapAction:(NSString *)soapAction forOperation:(%«className»Operation *)operation
@@ -191,6 +194,7 @@
 @synthesize responseData;
 @synthesize urlConnection;
 
+
 - (id)initWithBinding:(%«className» *)aBinding delegate:(id<%«className»ResponseDelegate>)aDelegate
 {
 	if ((self = [super init])) {
@@ -204,8 +208,11 @@
 	return self;
 }
 
+#pragma mark -
+#pragma mark blocks
+#if NS_BLOCKS_AVAILABLE
 
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»CompletionBlock)responseCompletionBlock
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
 {
 	if ((self = [super init])) {
 		self.binding = aBinding;
@@ -218,6 +225,15 @@
 	
 	return self;
 }
+
+
+- (void)setCompletionBlock:(%«className»Block)aCompletionBlock
+{
+	[completionBlock release];
+	completionBlock = [aCompletionBlock copy];
+}
+#endif
+#pragma mark ===
 
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace {
     return [binding.sslManager canAuthenticateForAuthenticationMethod:protectionSpace.authenticationMethod];
@@ -271,7 +287,7 @@
 		  }
 		  else if (completionBlock)
 		  {
-			  completionBlock([self retain], [response retain]);
+			completionBlock(self, response);
 		  }
 		}
 	}
@@ -296,10 +312,12 @@
 	{
 	  [delegate operation:self completedWithResponse:response];
 	}
-	else if (completionBlock)
-	{
-	  completionBlock([self retain], [response retain]);
+
+#if NS_BLOCKS_AVAILABLE
+	else if(completionBlock){
+	  completionBlock(self, response);
 	}
+#endif
 }
 
 - (void)dealloc
@@ -309,9 +327,31 @@
 	delegate = nil;
 	[responseData release];
 	[urlConnection release];
-	[completionBlock release];
+	#if NS_BLOCKS_AVAILABLE
+	[self releaseBlocksOnMainThread];
+	#endif
+
 	[super dealloc];
 }
+#if NS_BLOCKS_AVAILABLE
+- (void)releaseBlocksOnMainThread
+{
+	NSMutableArray *blocks = [NSMutableArray array];
+	if (completionBlock) {
+		[blocks addObject:completionBlock];
+		[completionBlock release];
+		completionBlock = nil;
+	}
+	
+	[[self class] performSelectorOnMainThread:@selector(releaseBlocks:) withObject:blocks waitUntilDone:[NSThread isMainThread]];
+}
+
+// Always called on main thread
++ (void)releaseBlocks:(NSArray *)blocks
+{
+	// Blocks will be released when this method exits
+}
+#endif
 
 @end
 
@@ -344,8 +384,8 @@
 	
 	return self;
 }
-
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»CompletionBlock)responseCompletionBlock
+#if NS_BLOCKS_AVAILABLE
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
 %FOREACH part in operation.input.body.parts
 %«part.name»:(%«part.element.type.classNameWithPtr»)a%«part.uname»
 %ENDFOR
@@ -364,6 +404,7 @@
 	
 	return self;
 }
+#endif 
 
 - (void)dealloc
 {
@@ -488,7 +529,7 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	if (responseData != nil && delegate != nil)
+	if ((responseData != nil && delegate != nil) || (responseData != nil && completionBlock != nil))
 	{
 		xmlDocPtr doc;
 		xmlNodePtr cur;
@@ -513,8 +554,7 @@
 			}
 			else if (completionBlock)
 			{
-			
-			  completionBlock([self retain], [response retain]);
+			  completionBlock(self, response);
 			}
 		} else {
 			cur = xmlDocGetRootElement(doc);
@@ -585,7 +625,7 @@
 		}
 		else if (completionBlock)
 		{
-			completionBlock([self retain], [response retain]);
+		  completionBlock(self, response);
 		}
 	}
 }
