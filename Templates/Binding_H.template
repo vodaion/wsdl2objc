@@ -73,7 +73,7 @@ typedef void (^%«className»CompletionBlock)(%«className»Operation * operatio
 @property (nonatomic, retain) %«className» *binding;
 @property (nonatomic, readonly) %«className»Response *response;
 @property (nonatomic, assign) id<%«className»ResponseDelegate> delegate;
-@property (nonatomic, retain) %«className»CompletionBlock completionBlock;
+@property (nonatomic, copy) %«className»CompletionBlock completionBlock;
 
 @property (nonatomic, retain) NSMutableData *responseData;
 @property (nonatomic, retain) NSURLConnection *urlConnection;

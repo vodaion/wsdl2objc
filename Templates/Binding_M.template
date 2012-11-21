@@ -271,7 +271,7 @@
 		  }
 		  else if (completionBlock)
 		  {
-			completionBlock(self, response);
+			  completionBlock([self retain], [response retain]);
 		  }
 		}
 	}
@@ -298,7 +298,7 @@
 	}
 	else if (completionBlock)
 	{
-	  completionBlock(self, response);
+	  completionBlock([self retain], [response retain]);
 	}
 }
 
@@ -513,7 +513,8 @@
 			}
 			else if (completionBlock)
 			{
-			  completionBlock(self, response);
+			
+			  completionBlock([self retain], [response retain]);
 			}
 		} else {
 			cur = xmlDocGetRootElement(doc);
@@ -584,7 +585,7 @@
 		}
 		else if (completionBlock)
 		{
-		  completionBlock(self, response);
+			completionBlock([self retain], [response retain]);
 		}
 	}
 }
