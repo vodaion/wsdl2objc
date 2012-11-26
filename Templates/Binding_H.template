@@ -6,7 +6,7 @@
 @end
 
 #if NS_BLOCKS_AVAILABLE
-typedef void (^%«className»Block)(%«className»Operation *operation, %«className»Response *response);
+typedef void (^%«className»OperationBlock)(id operation, %«className»Response *response);
 #endif
 
 #define kServerAnchorCertificates   @"kServerAnchorCertificates"
@@ -56,7 +56,7 @@ typedef void (^%«className»Block)(%«className»Operation *operation, %«class
 - (%«className»_%«operation.className» *)%«operation.asyncInvokeString» delegate:(id<%«className»ResponseDelegate>)responseDelegate;
 
 #if NS_BLOCKS_AVAILABLE
-- (void)%«operation.asyncInvokeString» completionBlock:(%«className»Block)responseCompletionBlock;
+- (%«className»_%«operation.className»*)%«operation.asyncInvokeString» completionBlock:(%«className»OperationBlock)responseCompletionBlock;
 #endif
 
 %ENDFOR
@@ -76,7 +76,7 @@ typedef void (^%«className»Block)(%«className»Operation *operation, %«class
 	
 #if NS_BLOCKS_AVAILABLE
 	//block to execute when request completes successfully
-	%«className»Block completionBlock;
+	%«className»OperationBlock completionBlock;
 #endif
 }
 
@@ -84,21 +84,16 @@ typedef void (^%«className»Block)(%«className»Operation *operation, %«class
 @property (nonatomic, readonly) %«className»Response *response;
 @property (nonatomic, assign) id<%«className»ResponseDelegate> delegate;
 
-
-#if NS_BLOCKS_AVAILABLE
-@property (nonatomic, setter = setCompletionBlock:) %«className»Block completionBlock;
-#endif
-
-
 @property (nonatomic, retain) NSMutableData *responseData;
 @property (nonatomic, retain) NSURLConnection *urlConnection;
 
 - (id)initWithBinding:(%«className» *)aBinding delegate:(id<%«className»ResponseDelegate>)aDelegate;
 
 #if NS_BLOCKS_AVAILABLE
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock;
-#endif
+@property (nonatomic, copy, setter=setCompletionBlock:) %«className»OperationBlock completionBlock;
 
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»OperationBlock)responseCompletionBlock;
+#endif
 @end
 
 %FOREACH operation in operations
@@ -133,7 +128,7 @@ typedef void (^%«className»Block)(%«className»Operation *operation, %«class
 
 
 #if NS_BLOCKS_AVAILABLE
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»OperationBlock)responseCompletionBlock
 %FOREACH part in operation.input.body.parts
 	%«part.name»:(%«part.element.type.classNameWithPtr»)a%«part.uname»
 %ENDFOR

@@ -115,16 +115,19 @@
 #pragma mark -
 #pragma mark blocks
 #if NS_BLOCKS_AVAILABLE
-- (void)%«operation.asyncInvokeString» completionBlock:(%«className»Block)responseCompletionBlock
+- (%«className»_%«operation.className»*)%«operation.asyncInvokeString» completionBlock:(void (^)(id operation, %«className»Response *response))block
 {
-	[self performAsynchronousOperation:[[(%«className»_%«operation.className»*)[%«className»_%«operation.className» alloc] initWithBinding:self completionBlock:responseCompletionBlock
+%«className»_%«operation.className» *objWithOperation = [[(%«className»_%«operation.className»*)[%«className»_%«operation.className» alloc] initWithBinding:self completionBlock:nil
 %FOREACH part in operation.input.body.parts
 																							 %«part.name»:a%«part.uname»
 %ENDFOR
 %FOREACH header in operation.input.headers
 																							 %«header.name»:a%«header.uname»
 %ENDFOR
-						  ] autorelease]];
+						  ] autorelease];
+	[objWithOperation setCompletionBlock: [[block copy] autorelease]];
+	[self performAsynchronousOperation:objWithOperation];
+	return objWithOperation;
 }
 #endif
 
@@ -174,6 +177,7 @@
 
 - (void) dealloc
 {
+NSLog(@"dealloc from children class");
 	[soapSigner release];
 	[sslManager release];
 	[address release];
@@ -190,7 +194,7 @@
 @synthesize binding;
 @synthesize response;
 @synthesize delegate;
-@synthesize completionBlock;
+
 @synthesize responseData;
 @synthesize urlConnection;
 
@@ -212,7 +216,14 @@
 #pragma mark blocks
 #if NS_BLOCKS_AVAILABLE
 
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
+@synthesize completionBlock;
+- (void) setCompletionBlock:(%«className»OperationBlock)completionBlock_
+{
+  Block_release(completionBlock);
+  completionBlock = Block_copy(completionBlock_);
+}
+
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(void (^)(id operation, %«className»Response *response))block
 {
 	if ((self = [super init])) {
 		self.binding = aBinding;
@@ -220,18 +231,12 @@
 		self.delegate = nil;
 		self.responseData = nil;
 		self.urlConnection = nil;
-		self.completionBlock = responseCompletionBlock;
+		self.completionBlock = block;
 	}
 	
 	return self;
 }
 
-
-- (void)setCompletionBlock:(%«className»Block)aCompletionBlock
-{
-	[completionBlock release];
-	completionBlock = [aCompletionBlock copy];
-}
 #endif
 #pragma mark ===
 
@@ -287,7 +292,10 @@
 		  }
 		  else if (completionBlock)
 		  {
-			completionBlock(self, response);
+			dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+			dispatch_async(queue, ^{
+			  completionBlock(((%«className»Operation*)self), response);
+			});
 		  }
 		}
 	}
@@ -314,22 +322,27 @@
 	}
 
 #if NS_BLOCKS_AVAILABLE
-	else if(completionBlock){
-	  completionBlock(self, response);
+	else if(completionBlock)
+	{
+	  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+	  dispatch_async(queue, ^{
+		completionBlock(((%«className»Operation*)self), response);
+	  });
 	}
 #endif
 }
 
 - (void)dealloc
 {
+NSLog(@"dealloc from parent class");
 	[binding release];
 	[response release];
 	delegate = nil;
 	[responseData release];
 	[urlConnection release];
-	#if NS_BLOCKS_AVAILABLE
+#if NS_BLOCKS_AVAILABLE
 	[self releaseBlocksOnMainThread];
-	#endif
+#endif
 
 	[super dealloc];
 }
@@ -339,7 +352,7 @@
 	NSMutableArray *blocks = [NSMutableArray array];
 	if (completionBlock) {
 		[blocks addObject:completionBlock];
-		[completionBlock release];
+		Block_release(completionBlock);
 		completionBlock = nil;
 	}
 	
@@ -385,7 +398,7 @@
 	return self;
 }
 #if NS_BLOCKS_AVAILABLE
-- (id)initWithBinding:(%«className» *)aBinding completionBlock:(%«className»Block)responseCompletionBlock
+- (id)initWithBinding:(%«className» *)aBinding completionBlock:(void (^)(id operation, %«className»Response *response))block
 %FOREACH part in operation.input.body.parts
 %«part.name»:(%«part.element.type.classNameWithPtr»)a%«part.uname»
 %ENDFOR
@@ -393,7 +406,7 @@
 %«header.name»:(%«header.type.classNameWithPtr»)a%«header.uname»
 %ENDFOR
 {
-	if((self = [super initWithBinding:aBinding completionBlock:responseCompletionBlock])) {
+	if((self = [super initWithBinding:aBinding completionBlock:block])) {
 %FOREACH part in operation.input.body.parts
 		self.%«part.name» = a%«part.uname»;
 %ENDFOR
@@ -554,7 +567,10 @@
 			}
 			else if (completionBlock)
 			{
-			  completionBlock(self, response);
+			  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+			  dispatch_async(queue, ^{
+				completionBlock(((%«className»Operation*)self), response);
+			  });
 			}
 		} else {
 			cur = xmlDocGetRootElement(doc);
@@ -625,7 +641,10 @@
 		}
 		else if (completionBlock)
 		{
-		  completionBlock(self, response);
+		  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+		  dispatch_async(queue, ^{
+			completionBlock(((%«className»Operation*)self), response);
+		  });
 		}
 	}
 }
