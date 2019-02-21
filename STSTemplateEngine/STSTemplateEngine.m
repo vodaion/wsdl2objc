@@ -1755,7 +1755,7 @@ BOOL classExists (NSString *className) {
 		// use alternative method before MacOS X 10.4
 		templateData = [NSData dataWithContentsOfFile:path]; // path must be absolute
 		templateString = [[[NSString alloc] initWithData:templateData encoding:enc] autorelease];
-		if (false) { // how the heck do we know there was no encoding error?
+        if (/* DISABLES CODE */ (false)) { // how the heck do we know there was no encoding error?
 			// create error description - encoding error
 			error = [TEError error:TE_TEMPLATE_ENCODING_ERROR inLine:0 atToken:TE_PATH];
 			[error setLiteral:path];
