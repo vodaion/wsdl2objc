@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "USType.h"
 
-@interface USAttribute : NSObject {
+@interface USAttribute: NSObject {
 	NSString *name;
 	NSString *wsdlName;
 	NSString *attributeDefault;

@@ -30,9 +30,8 @@
 @synthesize message;
 @synthesize operation;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.message = nil;
 		self.operation = nil;
@@ -41,8 +40,7 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [message release];
     [super dealloc];

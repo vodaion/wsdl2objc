@@ -32,9 +32,8 @@
 @synthesize element;
 @synthesize message;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.element = nil;
 		self.message = nil;
@@ -43,15 +42,13 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [element release];
     [super dealloc];
 }
 
-- (NSString *)uname
-{
+- (NSString *)uname {
 	return [self.name stringWithCapitalizedFirstCharacter];
 }
 

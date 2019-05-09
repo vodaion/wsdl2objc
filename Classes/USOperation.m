@@ -41,9 +41,8 @@
 @synthesize portType;
 @dynamic className;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.soapAction = nil;
 		self.input = [USOperationInterface operationInterfaceForOperation:self];
@@ -55,8 +54,7 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [soapAction release];
     [input release];
@@ -65,10 +63,9 @@
     [super dealloc];
 }
 
-- (USOperationFault *)faultForName:(NSString *)aName
-{
-	for(USOperationFault *fault in self.faults) {
-		if([fault.name isEqualToString:aName]) {
+- (USOperationFault *)faultForName:(NSString *)aName {
+	for (USOperationFault *fault in self.faults) {
+		if ([fault.name isEqualToString:aName]) {
 			return fault;
 		}
 	}
@@ -82,14 +79,12 @@
 	return newFault;
 }
 
-- (NSString *)className
-{
+- (NSString *)className {
 	return [[self.name componentsSeparatedByCharactersInSet:kIllegalClassCharactersSet] componentsJoinedByString:@""];
 }
 
-- (NSString *)invokeStringWithAsync:(BOOL)async
-{
-	if(self.input.body == nil && self.input.headers == nil && !async) {
+- (NSString *)invokeStringWithAsync:(BOOL)async {
+	if (self.input.body == nil && self.input.headers == nil && !async) {
 		return self.className;
 	}
 	
@@ -98,12 +93,12 @@
 	[invokeString appendFormat:@"%@%@Using", self.className, ((async)?@"Async":@"")];
 	
 	BOOL firstArgument = YES;
-	for(USPart *part in self.input.body.parts) {
+	for (USPart *part in self.input.body.parts) {
 		[invokeString appendFormat:@"%@:(%@)a%@ ", (firstArgument ? [part uname] : part.name), [part.element.type classNameWithPtr], [part uname]];
 		firstArgument = NO;
 	}
 	
-	for(USElement *element in self.input.headers) {
+	for (USElement *element in self.input.headers) {
 		[invokeString appendFormat:@"%@:(%@)a%@ ", (firstArgument ? [element uname] : element.name), [element.type classNameWithPtr], [element uname]];
 		firstArgument = NO;
 	}
@@ -111,13 +106,11 @@
 	return invokeString;
 }
 
-- (NSString *)invokeString
-{
+- (NSString *)invokeString {
 	return [self invokeStringWithAsync:NO];
 }
 
-- (NSString *)asyncInvokeString
-{
+- (NSString *)asyncInvokeString {
 	return [self invokeStringWithAsync:YES];
 }
 

@@ -39,12 +39,13 @@ static BOOL is_leap_year(unsigned year) {
   
   NSString *str = [formatter stringForObjectValue:self];
   [formatter release];
-  if(includeTime) {
+  if (includeTime) {
     // NSDate - all values are UTC
     str = [str stringByAppendingString: @"Z"];
   }
   return str;
 }
+
 /*Adapted from:
  *	Algorithm for Converting Gregorian Dates to ISO 8601 Week Date
  *	Rick McCarty, 1999
@@ -83,12 +84,12 @@ static BOOL is_leap_year(unsigned year) {
   
   [gregorian release];
   
-  if((dayOfYear <= (7U - Jan1Weekday)) && (Jan1Weekday > thursday)) {
+  if ((dayOfYear <= (7U - Jan1Weekday)) && (Jan1Weekday > thursday)) {
     week = 52U + ((Jan1Weekday == friday) || ((Jan1Weekday == saturday) && prevYearIsLeapYear));
     --year;
   } else {
     unsigned lengthOfYear = 365U + yearIsLeapYear;
-    if((lengthOfYear - dayOfYear) < (thursday - weekday)) {
+    if ((lengthOfYear - dayOfYear) < (thursday - weekday)) {
       ++year;
       week = 1U;
     } else {
@@ -98,7 +99,7 @@ static BOOL is_leap_year(unsigned year) {
   }
   
   NSString *timeString;
-  if(includeTime) {
+  if (includeTime) {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat: [@"'T'HH:mm:ss'Z'" prepareDateFormatWithTimeSeparator: timeSep]];
     timeString = [formatter stringForObjectValue:self];
@@ -118,7 +119,7 @@ static BOOL is_leap_year(unsigned year) {
 
   [gregorian release];
 
-  if(includeTime) {
+  if (includeTime) {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:[@"'T'HH:mm:ss'Z'" prepareDateFormatWithTimeSeparator:timeSep]];
     timeString = [formatter stringForObjectValue:self];
@@ -134,9 +135,11 @@ static BOOL is_leap_year(unsigned year) {
 - (NSString *)ISO8601DateStringWithTime:(BOOL)includeTime {
   return [self ISO8601DateStringWithTime:includeTime timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
+
 - (NSString *)ISO8601WeekDateStringWithTime:(BOOL)includeTime {
   return [self ISO8601WeekDateStringWithTime:includeTime timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
+
 - (NSString *)ISO8601OrdinalDateStringWithTime:(BOOL)includeTime {
   return [self ISO8601OrdinalDateStringWithTime:includeTime timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
@@ -146,9 +149,11 @@ static BOOL is_leap_year(unsigned year) {
 - (NSString *)ISO8601DateStringWithTimeSeparator:(unichar)timeSep {
   return [self ISO8601DateStringWithTime:YES timeSeparator:timeSep];
 }
+
 - (NSString *)ISO8601WeekDateStringWithTimeSeparator:(unichar)timeSep {
   return [self ISO8601WeekDateStringWithTime:YES timeSeparator:timeSep];
 }
+
 - (NSString *)ISO8601OrdinalDateStringWithTimeSeparator:(unichar)timeSep {
   return [self ISO8601OrdinalDateStringWithTime:YES timeSeparator:timeSep];
 }
@@ -158,9 +163,11 @@ static BOOL is_leap_year(unsigned year) {
 - (NSString *)ISO8601DateString {
   return [self ISO8601DateStringWithTime:YES timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
+
 - (NSString *)ISO8601WeekDateString {
   return [self ISO8601WeekDateStringWithTime:YES timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
+
 - (NSString *)ISO8601OrdinalDateString {
   return [self ISO8601OrdinalDateStringWithTime:YES timeSeparator:ISO8601UnparserDefaultTimeSeparatorCharacter];
 }
@@ -172,12 +179,9 @@ static BOOL is_leap_year(unsigned year) {
 //Replace all occurrences of ':' with timeSep.
 - (NSString *)prepareDateFormatWithTimeSeparator:(unichar)timeSep {
   NSString *dateFormat = self;
-  if(timeSep != ':') {
+  if (timeSep != ':') {
     NSMutableString *dateFormatMutable = [[dateFormat mutableCopy] autorelease];
-    [dateFormatMutable replaceOccurrencesOfString:@":"
-  withString:[NSString stringWithCharacters:&timeSep length:1U]
-  options:NSBackwardsSearch | NSLiteralSearch
-  range:(NSRange){ 0U, [dateFormat length] }];
+    [dateFormatMutable replaceOccurrencesOfString:@":" withString:[NSString stringWithCharacters:&timeSep length:1U] options: NSBackwardsSearch | NSLiteralSearch range:(NSRange){ 0U, [dateFormat length] }];
     dateFormat = dateFormatMutable;
   }
   return dateFormat;

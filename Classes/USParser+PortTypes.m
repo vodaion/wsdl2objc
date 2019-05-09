@@ -37,66 +37,59 @@
 
 @implementation USParser (PortTypes)
 
-- (void)processPortTypeElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processPortTypeElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USPortType *portType = [schema portTypeForName:name];
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processPortTypeChildElement:(NSXMLElement*)child portType:portType];
 		}
 	}
 }
 
-- (void)processPortTypeChildElement:(NSXMLElement *)el portType:(USPortType *)portType
-{
+- (void)processPortTypeChildElement:(NSXMLElement *)el portType:(USPortType *)portType {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"operation"]) {
+	if ([localName isEqualToString:@"operation"]) {
 		[self processPortTypeOperationElement:el portType:portType];
 	}
 }
 
-- (void)processPortTypeOperationElement:(NSXMLElement *)el portType:(USPortType *)portType
-{
+- (void)processPortTypeOperationElement:(NSXMLElement *)el portType:(USPortType *)portType {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	
 	USOperation *operation = [portType operationForName:name];
 	operation.name = name;
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processPortTypeOperationChildElement:(NSXMLElement*)child operation:operation];
 		}
 	}
 }
 
-- (void)processPortTypeOperationChildElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processPortTypeOperationChildElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"input"]) {
+	if ([localName isEqualToString:@"input"]) {
 		[self processPortTypeInputElement:el operation:operation];
-	} else if([localName isEqualToString:@"output"]) {
+	} else if ([localName isEqualToString:@"output"]) {
 		[self processPortTypeOutputElement:el operation:operation];
-	} else if([localName isEqualToString:@"fault"]) {
+	} else if ([localName isEqualToString:@"fault"]) {
 		[self processPortTypeFaultElement:el operation:operation];
 	}
 }
 
-- (void)processPortTypeInputElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processPortTypeInputElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	[self processPortTypeOperationInterfaceElement:el operationInterface:operation.input];
 }
 
-- (void)processPortTypeOutputElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processPortTypeOutputElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	[self processPortTypeOperationInterfaceElement:el operationInterface:operation.output];
 }
 
-- (void)processPortTypeOperationInterfaceElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface
-{
+- (void)processPortTypeOperationInterfaceElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	interface.name = name;
 	
@@ -111,8 +104,7 @@
 	interface.body = bodyMessage;
 }
 
-- (void)processPortTypeFaultElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processPortTypeFaultElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USOperationFault *fault = [operation faultForName:name];
 	

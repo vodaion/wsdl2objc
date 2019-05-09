@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
-#import "USAdditions.h"
 #import <libxml/tree.h>
-#import "USGlobals.h"
 #import <objc/runtime.h>
+#import "USAdditions.h"
+#import "USGlobals.h"
 
 %FOREACH type in types
 %IFEQ type.assignOrRetain retain

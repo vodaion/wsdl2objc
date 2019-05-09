@@ -31,15 +31,13 @@
 @synthesize wsdlName;
 @synthesize type;
 
-- (void) dealloc
-{
+- (void)dealloc {
     [name release];
     [wsdlName release];
     [super dealloc];
 }
 
-- (id)copyWithZone:(NSZone *)zone
-{
+- (id)copyWithZone:(NSZone *)zone {
 	USSequenceElement *newSeqElement = [USSequenceElement new];
 	
 	newSeqElement.minOccurs = self.minOccurs;
@@ -51,27 +49,24 @@
 	return newSeqElement;
 }
 
-- (void)setName:(NSString *)aName
-{
+- (void)setName:(NSString *)aName {
 	USObjCKeywords *keywords = [USObjCKeywords sharedInstance];
 	
 	self.wsdlName = aName;
-	if([keywords isAKeyword:aName]) {
+	if ([keywords isAKeyword:aName]) {
 		aName = [NSString stringWithFormat:@"%@_", aName];
 	}
 	
-	if(name != nil) [name autorelease];
+	if (name != nil) [name autorelease];
 	name = [aName copy];
 }
 
-- (NSString *)uname
-{
+- (NSString *)uname {
 	return [self.name stringWithCapitalizedFirstCharacter];
 }
 
-- (NSString *)useAnArray
-{
-	if(self.maxOccurs == 0 || self.maxOccurs == 1) {
+- (NSString *)useAnArray {
+	if (self.maxOccurs == 0 || self.maxOccurs == 1) {
 		return @"false";
 	}
 	

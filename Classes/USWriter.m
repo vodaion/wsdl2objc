@@ -32,6 +32,7 @@
 #import "USBinding.h"
 #import "USPort.h"
 #import "NSBundle+USAdditions.h"
+#import "USWSDL.h"
 
 @interface USWriter (PrivateMethods)
 
@@ -53,9 +54,8 @@
 @synthesize wsdl;
 @synthesize outDir;
 
-- (id)initWithWSDL:(USWSDL *)aWsdl outputDirectory:(NSURL *)anOutDir
-{
-	if((self = [super init])) {
+- (id)initWithWSDL:(USWSDL *)aWsdl outputDirectory:(NSURL *)anOutDir {
+	if ((self = [super init])) {
 		self.wsdl = aWsdl;
 		self.outDir = anOutDir;
 	}
@@ -63,21 +63,19 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [wsdl release];
     [outDir release];
     [super dealloc];
 }
 
-- (BOOL)write;
-{
-	if(!wsdl) {
+- (BOOL)write; {
+	if (!wsdl) {
 		NSLog(@"No WSDL");
 		return NO;
 	}
 	
-	if(![self writeSchemas]) {
+	if (![self writeSchemas]) {
 		NSLog(@"Error writing schemas");
 		return NO;
 	}
@@ -85,11 +83,10 @@
 	return YES;
 }
 
-- (BOOL)writeSchemas
-{	
+- (BOOL)writeSchemas {
 	[self generateSchemaPrefixes];
 	
-	for(USSchema *schema in wsdl.schemas) {
+	for (USSchema *schema in wsdl.schemas) {
 		[self doWriteSchema:schema];
 	}
 	
@@ -98,13 +95,12 @@
 	return YES;
 }
 
-- (void)generateSchemaPrefixes
-{
+- (void)generateSchemaPrefixes {
 	int nsNum = 1;
 	NSMutableSet *schemasToSkip = [NSMutableSet set];
 	
-	for(USSchema *schema in wsdl.schemas) {
-		if(schema.fullName == nil || [schema.fullName length] == 0) {
+	for (USSchema *schema in wsdl.schemas) {
+		if (schema.fullName == nil || [schema.fullName length] == 0) {
 			[schemasToSkip addObject:schema];
 			continue;
 		}
@@ -112,14 +108,13 @@
 		[self generatePrefixForSchema:schema nsNum:&nsNum];
 	}
 	
-	for(USSchema *schema in schemasToSkip) {
+	for (USSchema *schema in schemasToSkip) {
 		[wsdl.schemas removeObject:schema];
 	}
 }
 
-- (BOOL)generatePrefixForSchema:(USSchema *)schema nsNum:(int*)nsNum
-{
-	if(schema.prefix == nil) {
+- (BOOL)generatePrefixForSchema:(USSchema *)schema nsNum:(int*)nsNum {
+	if (schema.prefix == nil) {
 		NSString *generatedPrefix = [NSString stringWithFormat:@"ns%d", (*nsNum)++];
 		while([wsdl existingSchemaForPrefix:generatedPrefix] != nil) {
 			generatedPrefix = [NSString stringWithFormat:@"ns%d", (*nsNum)++];
@@ -132,15 +127,14 @@
 	return NO;
 }
 
-- (void)doWriteSchema:(USSchema *)schema
-{
-	if(schema.hasBeenWritten == YES) return;
-	if([schema shouldNotWrite]) return;
+- (void)doWriteSchema:(USSchema *)schema {
+	if (schema.hasBeenWritten == YES) return;
+	if ([schema shouldNotWrite]) return;
 	
 	schema.hasBeenWritten = YES;
 	
 	//Write out any imports first so they can have a prefix generated for them if needed
-	for(USSchema *import in schema.imports) {
+	for (USSchema *import in schema.imports) {
 		[self doWriteSchema:import];
 	}
 	
@@ -154,7 +148,7 @@
 														 usingDictionary:[schema templateKeyDictionary]
 																encoding:NSUTF8StringEncoding
 														  errorsReturned:&errors] retain];
-	if(errors == nil) {
+	if (errors == nil) {
 		[hString appendString:schemaHString];
 	}
 	
@@ -165,25 +159,25 @@
 																encoding:NSUTF8StringEncoding
 														  errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[mString appendString:schemaMString];
 	}
 	
 	[schemaMString release];
 	
-	for(USType *type in schema.types) {
+	for (USType *type in schema.types) {
 		[self appendType:type toHString:hString mString:mString];
 	}
 	
-	for(USService *service in schema.services) {
+	for (USService *service in schema.services) {
 		[self appendService:service toHString:hString mString:mString];
 		
-		for(USPort *port in service.ports) {
+		for (USPort *port in service.ports) {
 			[self appendBinding:port.binding toHString:hString mString:mString];
 		}
 	}
 	
-	if([hString length] > 0) {
+	if ([hString length] > 0) {
 		[hString writeToURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@.h", schema.prefix] relativeToURL:outDir]
 				 atomically:NO
 				   encoding:NSUTF8StringEncoding
@@ -196,24 +190,23 @@
 	}
 }
 
-- (void)appendType:(USType *)type toHString:(NSMutableString *)hString mString:(NSMutableString *)mString
-{
-	if(!type || !type.hasBeenParsed) {
+- (void)appendType:(USType *)type toHString:(NSMutableString *)hString mString:(NSMutableString *)mString {
+	if (!type || !type.hasBeenParsed) {
 		NSLog(@"Type %@ was never parsed!", (type ? type.typeName : @"(null)"));
 		return;
 	}
 	
-	if(type.hasBeenWritten) return;
+	if (type.hasBeenWritten) return;
 	type.hasBeenWritten = YES;
-	if(type.behavior == TypeBehavior_simple && [type.className isEqualToString:type.representationClass]) return;
+	if (type.behavior == TypeBehavior_simple && [type.className isEqualToString:type.representationClass]) return;
 	
-	if(type.superClass != nil) [self appendType:type.superClass toHString:hString mString:mString];
+	if (type.superClass != nil) [self appendType:type.superClass toHString:hString mString:mString];
 	
-	for(USSequenceElement *seqElement in type.sequenceElements) {
+	for (USSequenceElement *seqElement in type.sequenceElements) {
 		[self appendType:seqElement.type toHString:hString mString:mString];
 	}
 	
-	for(USAttribute *attribute in type.attributes) {
+	for (USAttribute *attribute in type.attributes) {
 		[self appendType:attribute.type toHString:hString mString:mString];
 	}
 	
@@ -224,7 +217,7 @@
 															  encoding:NSUTF8StringEncoding
 														errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[hString appendString:typeHString];
 	}
 	
@@ -235,7 +228,7 @@
 															  encoding:NSUTF8StringEncoding
 														errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[mString appendString:typeMString];
 	} else {
 		NSLog(@"Errors encountered while generating implementation for type %@", type.typeName);
@@ -244,8 +237,7 @@
 	[typeMString release];	
 }
 
-- (void)appendBinding:(USBinding *)binding toHString:(NSMutableString *)hString mString:(NSMutableString *)mString
-{
+- (void)appendBinding:(USBinding *)binding toHString:(NSMutableString *)hString mString:(NSMutableString *)mString {
 	NSArray *errors;
 	
 	NSString *bindingHString = [[NSString stringByExpandingTemplateAtPath:[binding templateFileHPath]
@@ -253,7 +245,7 @@
 																 encoding:NSUTF8StringEncoding
 														   errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[hString appendString:bindingHString];
 	}
 	
@@ -264,7 +256,7 @@
 																 encoding:NSUTF8StringEncoding
 														   errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[mString appendString:bindingMString];
 	} else {
 		NSLog(@"Errors encountered while generating implementation for binding %@", binding.name);
@@ -273,8 +265,7 @@
 	[bindingMString release];
 }
 
-- (void)appendService:(USService *)service toHString:(NSMutableString *)hString mString:(NSMutableString *)mString
-{
+- (void)appendService:(USService *)service toHString:(NSMutableString *)hString mString:(NSMutableString *)mString {
 	NSArray *errors;
 	
 	NSString *serviceHString = [[NSString stringByExpandingTemplateAtPath:[service templateFileHPath]
@@ -282,7 +273,7 @@
 																 encoding:NSUTF8StringEncoding
 														   errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[hString appendString:serviceHString];
 	}
 	
@@ -293,7 +284,7 @@
 																 encoding:NSUTF8StringEncoding
 														   errorsReturned:&errors] retain];
 	
-	if(errors == nil) {
+	if (errors == nil) {
 		[mString appendString:serviceMString];
 	} else {
 		NSLog(@"Errors encountered while generating implementation for service %@", service.name);
@@ -302,8 +293,7 @@
 	[serviceMString release];
 }
 
-- (void)copyStandardFilesToOutputDirectory
-{
+- (void)copyStandardFilesToOutputDirectory {
 	//Copy additions files
 	[self writeResourceName:@"USAdditions_H" resourceType:@"template" toFilename:@"USAdditions.h"];
 	[self writeResourceName:@"USAdditions_M" resourceType:@"template" toFilename:@"USAdditions.m"];
@@ -319,14 +309,12 @@
 	[self writeResourceName:@"USGlobals_M" resourceType:@"template" toFilename:@"USGlobals.m"];
 }
 
-- (void)writeResourceName:(NSString *)resourceName resourceType:(NSString *)resourceType toFilename:(NSString *)fileName
-{
+- (void)writeResourceName:(NSString *)resourceName resourceType:(NSString *)resourceType toFilename:(NSString *)fileName {
 	NSString *resourceContents;
     
-    if([resourceType isEqualToString:@"template"]){
+    if ([resourceType isEqualToString:@"template"]){
         resourceContents = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForTemplateNamed:resourceName] usedEncoding:nil error:nil];
-    }
-    else{
+    } else {
         resourceContents = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:resourceName ofType:resourceType] usedEncoding:nil error:nil];
     }
 	

@@ -21,8 +21,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "UStype.h"
 
+@class USType;
 @interface USSequenceElement : NSObject <NSCopying> {
 	NSInteger minOccurs;
 	NSInteger maxOccurs;

@@ -34,9 +34,8 @@
 @synthesize hasBeenParsed;
 @synthesize waitingSeqElements;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.wsdlName = nil;
 		self.type = nil;
@@ -48,29 +47,27 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void)dealloc {
     [name release];
     [wsdlName release];
     [waitingSeqElements release];
     [super dealloc];
 }
 
-- (void)setName:(NSString *)aName
-{
+- (void)setName:(NSString *)aName {
+    if (aName == nil) { return; }
 	USObjCKeywords *keywords = [USObjCKeywords sharedInstance];
 
 	self.wsdlName = aName;
-	if([keywords isAKeyword:aName]) {
+	if ([keywords isAKeyword:aName]) {
 		aName = [NSString stringWithFormat:@"%@_", aName];
 	}
 	
-	if(name != nil) [name autorelease];
+	if (name != nil) [name autorelease];
 	name = [aName copy];
 }
 
-- (NSString *)uname
-{
+- (NSString *)uname {
 	return [self.name stringWithCapitalizedFirstCharacter];
 }
 

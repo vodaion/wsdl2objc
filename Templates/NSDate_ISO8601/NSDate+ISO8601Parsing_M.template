@@ -32,50 +32,52 @@ static unsigned read_segment(const unsigned char *str, const unsigned char **nex
   
   return value;
 }
+
 static unsigned read_segment_4digits(const unsigned char *str, const unsigned char **next, unsigned *out_num_digits) {
   unsigned num_digits = 0U;
   unsigned value = 0U;
   
-  if(isdigit(*str)) {
+  if (isdigit(*str)) {
     value += *(str++) - '0';
     ++num_digits;
   }
   
-  if(isdigit(*str)) {
+  if (isdigit(*str)) {
     value *= 10U;
     value += *(str++) - '0';
     ++num_digits;
   }
   
-  if(isdigit(*str)) {
+  if (isdigit(*str)) {
     value *= 10U;
     value += *(str++) - '0';
     ++num_digits;
   }
   
-  if(isdigit(*str)) {
+  if (isdigit(*str)) {
     value *= 10U;
     value += *(str++) - '0';
     ++num_digits;
   }
   
-  if(next) *next = str;
-  if(out_num_digits) *out_num_digits = num_digits;
+  if (next) *next = str;
+  if (out_num_digits) *out_num_digits = num_digits;
   
   return value;
 }
+
 static unsigned read_segment_2digits(const unsigned char *str, const unsigned char **next) {
   unsigned value = 0U;
   
-  if(isdigit(*str))
+  if (isdigit(*str))
     value += *str - '0';
   
-  if(isdigit(*++str)) {
+  if (isdigit(*++str)) {
     value *= 10U;
     value += *(str++) - '0';
   }
   
-  if(next) *next = str;
+  if (next) *next = str;
   
   return value;
 }
@@ -84,7 +86,7 @@ static unsigned read_segment_2digits(const unsigned char *str, const unsigned ch
 static double read_double(const unsigned char *str, const unsigned char **next) {
   double value = 0.0;
   
-  if(str) {
+  if (str) {
     unsigned int_value = 0;
     
     while(isdigit(*str)) {
@@ -93,7 +95,7 @@ static double read_double(const unsigned char *str, const unsigned char **next) 
     }
     value = int_value;
     
-    if(((*str == ',') || (*str == '.'))) {
+    if (((*str == ',') || (*str == '.'))) {
       ++str;
       
       register double multiplier, multiplier_multiplier;
@@ -194,7 +196,7 @@ static BOOL is_leap_year(unsigned year) {
     dateOnly
   } dateSpecification = monthAndDate;
   
-  if(strict) timeSep = ISO8601ParserDefaultTimeSeparatorCharacter;
+  if (strict) timeSep = ISO8601ParserDefaultTimeSeparatorCharacter;
   NSAssert(timeSep != '\0', @"Time separator must not be NUL.");
   
   BOOL isValidDate = ([str length] > 0U);
@@ -205,14 +207,14 @@ static BOOL is_leap_year(unsigned year) {
   
   NSRange range = { 0U, 0U };
   const unsigned char *start_of_date = 0;
-  if(!isValidDate || (strict && isspace(*ch))) {
+  if (!isValidDate || (strict && isspace(*ch))) {
     range.location = NSNotFound;
     isValidDate = NO;
   } else {
     //Skip leading whitespace.
     unsigned i = 0U;
     unsigned len = strlen((const char *)ch);
-    for(; i < len; ++i) {
+    for (; i < len; ++i) {
       if(!isspace(ch[i]))
         break;
     }
@@ -224,7 +226,7 @@ static BOOL is_leap_year(unsigned year) {
     unsigned segment;
     unsigned num_leading_hyphens = 0U, num_digits = 0U;
         
-    if(*ch == 'T') {
+    if (*ch == 'T') {
       //There is no date here, only a time. Set the date to now; then we'll parse the time.
       isValidDate = isdigit(*++ch);
       
@@ -238,10 +240,10 @@ static BOOL is_leap_year(unsigned year) {
       }
       
       segment = read_segment(ch, &ch, &num_digits);
-      switch(num_digits) {
+      switch (num_digits) {
         case 0:
-          if(*ch == 'W') {
-            if((ch[1] == '-') && isdigit(ch[2]) && ((num_leading_hyphens == 1U) || ((num_leading_hyphens == 2U) && !strict))) {
+          if (*ch == 'W') {
+            if ((ch[1] == '-') && isdigit(ch[2]) && ((num_leading_hyphens == 1U) || ((num_leading_hyphens == 2U) && !strict))) {
               year = [dateComps year];
               month_or_week = 1U;
               ch += 2;
@@ -256,7 +258,7 @@ static BOOL is_leap_year(unsigned year) {
           break;
           
         case 8: //YYYY MM DD
-          if(num_leading_hyphens > 0U)
+          if (num_leading_hyphens > 0U)
             isValidDate = NO;
           else {
             day = segment % 100U;
@@ -267,7 +269,7 @@ static BOOL is_leap_year(unsigned year) {
           break;
           
         case 6: //YYMMDD (implicit century)
-          if(num_leading_hyphens > 0U)
+          if (num_leading_hyphens > 0U)
             isValidDate = NO;
           else {
             day = segment % 100U;
@@ -284,10 +286,10 @@ static BOOL is_leap_year(unsigned year) {
             case 0: //YYYY
               year = segment;
               
-              if(*ch == '-') ++ch;
+              if (*ch == '-') ++ch;
               
-              if(!isdigit(*ch)) {
-                if(*ch == 'W')
+              if (!isdigit(*ch)) {
+                if (*ch == 'W')
                   goto parseWeekAndDay;
                 else
                   month_or_week = day = 1U;
@@ -347,11 +349,11 @@ static BOOL is_leap_year(unsigned year) {
           break;
           
         case 1:
-          if(strict) {
+          if (strict) {
             //Two digits only - never just one.
-            if(num_leading_hyphens == 1U) {
-              if(*ch == '-') ++ch;
-              if(*++ch == 'W') {
+            if (num_leading_hyphens == 1U) {
+              if (*ch == '-') ++ch;
+              if (*++ch == 'W') {
                 year  = [dateComps year];
                 year -= (year % 10U);
                 year += segment;
@@ -363,17 +365,17 @@ static BOOL is_leap_year(unsigned year) {
             break;
           }
         case 2:
-          switch(num_leading_hyphens) {
+          switch (num_leading_hyphens) {
             case 0:
-              if(*ch == '-') {
+              if (*ch == '-') {
                 //Implicit century
                 year  = [dateComps year];
                 year -= (year % 100U);
                 year += segment;
                 
-                if(*++ch == 'W')
+                if (*++ch == 'W')
                   goto parseWeekAndDay;
-                else if(!isdigit(*ch)) {
+                else if (!isdigit(*ch)) {
                   goto centuryOnly;
                 } else {
                   //Get month and/or date.
@@ -386,14 +388,14 @@ static BOOL is_leap_year(unsigned year) {
                       break;
                       
                     case 1: //YY-M; YY-M-DD (extension)
-                      if(strict) {
+                      if (strict) {
                         isValidDate = NO;
                         break;
                       }
                     case 2: //YY-MM; YY-MM-DD
                       month_or_week = segment;
-                      if(*ch == '-') {
-                        if(isdigit(*++ch))
+                      if (*ch == '-') {
+                        if (isdigit(*++ch))
                           day = read_segment_2digits(ch, &ch);
                         else
                           day = 1U;
@@ -407,15 +409,15 @@ static BOOL is_leap_year(unsigned year) {
                       break;
                   }
                 }
-              } else if(*ch == 'W') {
+              } else if (*ch == 'W') {
                 year  = [dateComps year];
                 year -= (year % 100U);
                 year += segment;
                 
               parseWeekAndDay: //*ch should be 'W' here.
-                if(!isdigit(*++ch)) {
+                if (!isdigit(*++ch)) {
                   //Not really a week-based date; just a year followed by '-W'.
-                  if(strict)
+                  if (strict)
                     isValidDate = NO;
                   else
                     month_or_week = day = 1U;
@@ -439,10 +441,10 @@ static BOOL is_leap_year(unsigned year) {
               unsigned current_year = [dateComps year];
               unsigned century = (current_year % 100U);
               year = segment + (current_year - century);
-              if(num_digits == 1U) //implied decade
+              if (num_digits == 1U) //implied decade
                 year += century - (current_year % 10U);
               
-              if(*ch == '-') {
+              if (*ch == '-') {
                 ++ch;
                 month_or_week = read_segment_2digits(ch, &ch);
                 NSLog(@"(%@) month is %u", str, month_or_week);
@@ -456,7 +458,7 @@ static BOOL is_leap_year(unsigned year) {
             case 2: //--MM; --MM-DD
               year = [dateComps year];
               month_or_week = segment;
-              if(*ch == '-') {
+              if (*ch == '-') {
                 ++ch;
                 day = read_segment_2digits(ch, &ch);
               } else {
@@ -476,7 +478,7 @@ static BOOL is_leap_year(unsigned year) {
           break;
           
         case 7: //YYYY DDD (ordinal date)
-          if(num_leading_hyphens > 0U)
+          if (num_leading_hyphens > 0U)
             isValidDate = NO;
           else {
             day = segment % 1000U;
@@ -489,7 +491,7 @@ static BOOL is_leap_year(unsigned year) {
           
         case 3: //--DDD (ordinal date, implicit year)
           //Technically, the standard only allows one hyphen. But it says that two hyphens is the logical implementation, and one was dropped for brevity. So I have chosen to allow the missing hyphen.
-          if((num_leading_hyphens < 1U) || ((num_leading_hyphens > 2U) && !strict))
+          if ((num_leading_hyphens < 1U) || ((num_leading_hyphens > 2U) && !strict))
             isValidDate = NO;
           else {
             day = segment;
@@ -505,18 +507,18 @@ static BOOL is_leap_year(unsigned year) {
       }
     }
     
-    if(isValidDate) {
-      if(isspace(*ch) || (*ch == 'T')) ++ch;
+    if (isValidDate) {
+      if (isspace(*ch) || (*ch == 'T')) ++ch;
       
-      if(isdigit(*ch)) {
+      if (isdigit(*ch)) {
         hour = read_segment_2digits(ch, &ch);
-        if(*ch == timeSep) {
+        if (*ch == timeSep) {
           ++ch;
-          if((timeSep == ',') || (timeSep == '.')) {
+          if ((timeSep == ',') || (timeSep == '.')) {
             //We can't do fractional minutes when '.' is the segment separator.
             //Only allow whole minutes and whole seconds.
             minute = read_segment_2digits(ch, &ch);
-            if(*ch == timeSep) {
+            if (*ch == timeSep) {
               ++ch;
               second = read_segment_2digits(ch, &ch);
             }
@@ -535,7 +537,7 @@ static BOOL is_leap_year(unsigned year) {
           }
         }
         
-        switch(*ch) {
+        switch (*ch) {
           case 'Z':
             timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
             break;
@@ -543,20 +545,20 @@ static BOOL is_leap_year(unsigned year) {
           case '+':
           case '-':;
             BOOL negative = (*ch == '-');
-            if(isdigit(*++ch)) {
+            if (isdigit(*++ch)) {
               //Read hour offset.
               segment = *ch - '0';
-              if(isdigit(*++ch)) {
+              if (isdigit(*++ch)) {
                 segment *= 10U;
                 segment += *(ch++) - '0';
               }
               tz_hour = (signed)segment;
-              if(negative) tz_hour = -tz_hour;
+              if (negative) tz_hour = -tz_hour;
               
               //Optional separator.
-              if(*ch == timeSep) ++ch;
+              if (*ch == timeSep) ++ch;
               
-              if(isdigit(*ch)) {
+              if (isdigit(*ch)) {
                 //Read minute offset.
                 segment = *ch - '0';
                 if(isdigit(*++ch)) {
@@ -573,7 +575,7 @@ static BOOL is_leap_year(unsigned year) {
       }
     }
     
-    if(isValidDate) {
+    if (isValidDate) {
       if (timeZone != nil)
         [gregorian setTimeZone: timeZone];
       
@@ -620,8 +622,8 @@ static BOOL is_leap_year(unsigned year) {
     }
   } //if(!(strict && isdigit(ch[0])))
   
-  if(outRange) {
-    if(isValidDate)
+  if (outRange) {
+    if (isValidDate)
       range.length = ch - start_of_date;
     else
       range.location = NSNotFound;
@@ -637,9 +639,11 @@ static BOOL is_leap_year(unsigned year) {
 + (NSDate *)dateWithISO8601String:(NSString *)str {
   return [self dateWithISO8601String:str strictly:NO getRange:NULL];
 }
+
 + (NSDate *)dateWithISO8601String:(NSString *)str strictly:(BOOL)strict {
   return [self dateWithISO8601String:str strictly:strict getRange:NULL];
 }
+
 + (NSDate *)dateWithISO8601String:(NSString *)str strictly:(BOOL)strict getRange:(out NSRange *)outRange {
   return [self dateWithISO8601String:str strictly:strict timeSeparator:ISO8601ParserDefaultTimeSeparatorCharacter getRange:NULL];
 }
@@ -647,9 +651,11 @@ static BOOL is_leap_year(unsigned year) {
 + (NSDate *)dateWithISO8601String:(NSString *)str timeSeparator:(unichar)timeSep getRange:(out NSRange *)outRange {
   return [self dateWithISO8601String:str strictly:NO timeSeparator:timeSep getRange:outRange];
 }
+
 + (NSDate *)dateWithISO8601String:(NSString *)str timeSeparator:(unichar)timeSep {
   return [self dateWithISO8601String:str strictly:NO timeSeparator:timeSep getRange:NULL];
 }
+
 + (NSDate *)dateWithISO8601String:(NSString *)str getRange:(out NSRange *)outRange {
   return [self dateWithISO8601String:str strictly:NO timeSeparator:ISO8601ParserDefaultTimeSeparatorCharacter getRange:outRange];
 }

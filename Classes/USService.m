@@ -33,9 +33,8 @@
 @synthesize schema;
 @dynamic className;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.ports = [NSMutableArray array];
 		self.schema = nil;
@@ -44,17 +43,15 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [ports release];
     [super dealloc];
 }
 
-- (USPort *)portForName:(NSString *)aName
-{
-	for(USPort *port in self.ports) {
-		if([port.name isEqualToString:aName]) {
+- (USPort *)portForName:(NSString *)aName {
+	for (USPort *port in self.ports) {
+		if ([port.name isEqualToString:aName]) {
 			return port;
 		}
 	}
@@ -68,23 +65,19 @@
 	return newPort;
 }
 
-- (NSString *)className
-{
+- (NSString *)className {
 	return [[self.name componentsSeparatedByCharactersInSet:kIllegalClassCharactersSet] componentsJoinedByString:@""];
 }
 
-- (NSString *)templateFileHPath
-{
+- (NSString *)templateFileHPath {
 	return [[NSBundle mainBundle] pathForTemplateNamed:@"Service_H"];
 }
 
-- (NSString *)templateFileMPath
-{
+- (NSString *)templateFileMPath {
 	return [[NSBundle mainBundle] pathForTemplateNamed:@"Service_M"];
 }
 
-- (NSDictionary *)templateKeyDictionary
-{
+- (NSDictionary *)templateKeyDictionary {
 	NSMutableDictionary *returning = [NSMutableDictionary dictionary];
 	
 	[returning setObject:self.name forKey:@"name"];

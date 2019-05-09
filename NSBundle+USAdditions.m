@@ -33,16 +33,15 @@
  * - /Network/Library/Application Support/wsdl2objc/
  * - application bundle resources
  */
-- (NSString *)pathForTemplateNamed:(NSString *)templateName
-{
-    NSString    *templateDirectory = [[NSUserDefaults standardUserDefaults] stringForKey:@"templateDirectory"];
+- (NSString *)pathForTemplateNamed:(NSString *)templateName {
+    NSString *templateDirectory = [[NSUserDefaults standardUserDefaults] stringForKey:@"templateDirectory"];
     
     templateName = [templateName stringByAppendingPathExtension:@"template"];
-    if(templateDirectory == nil){
+    if (templateDirectory == nil){
         for (templateDirectory in NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSAllDomainsMask, YES)) {
             NSString    *path = [templateDirectory stringByAppendingPathComponent:[@"wsdl2objc" stringByAppendingPathComponent:templateName]];
             
-            if([[NSFileManager defaultManager] fileExistsAtPath:path]){
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
                 return path;
             }
         }
@@ -51,8 +50,7 @@
 #else
         return nil;
 #endif
-    }
-    else{
+    } else {
         return [templateDirectory stringByAppendingPathComponent:templateName];
     }
 }

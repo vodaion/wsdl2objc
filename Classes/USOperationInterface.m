@@ -35,17 +35,15 @@
 @synthesize body;
 @synthesize operation;
 
-+ (USOperationInterface *)operationInterfaceForOperation:(USOperation *)operation
-{
++ (USOperationInterface *)operationInterfaceForOperation:(USOperation *)operation {
 	USOperationInterface *interface = [[USOperationInterface new] autorelease];
 	interface.operation = operation;
 	
 	return interface;
 }
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.headers = [NSMutableArray array];
 		self.body = nil;
@@ -55,18 +53,16 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [headers release];
     [body release];
     [super dealloc];
 }
 
-- (NSString *)className
-{
+- (NSString *)className {
 	NSMutableArray *parts = self.body.parts;
-	if([parts count] == 1) {
+	if ([parts count] == 1) {
 		USPart *bodyPart = [parts lastObject];
 		NSString *className = bodyPart.element.type.classNameWithPtr;
 		return className;
@@ -75,8 +71,7 @@
 	return @"NSArray *";
 }
 
-- (NSString *)hasHeaders
-{
+- (NSString *)hasHeaders {
 	return ([headers count] > 0 ? @"true" : @"false");
 }
 

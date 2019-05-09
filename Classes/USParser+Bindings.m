@@ -34,8 +34,7 @@
 
 @implementation USParser (Bindings)
 
-- (void)processBindingElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processBindingElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USBinding *binding = [schema bindingForName:name];
 	
@@ -48,111 +47,101 @@
 	USPortType *portType = [typeSchema portTypeForName:typeLocalName];
 	binding.portType = portType;
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processBindingChildElement:(NSXMLElement*)child binding:binding];
 		}
 	}
 }
 
-- (void)processBindingChildElement:(NSXMLElement *)el binding:(USBinding *)binding
-{
+- (void)processBindingChildElement:(NSXMLElement *)el binding:(USBinding *)binding {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"binding"]) {
+	if ([localName isEqualToString:@"binding"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapBindingElement:el binding:binding];
 		}
-	} else if([localName isEqualToString:@"operation"]) {
+	} else if ([localName isEqualToString:@"operation"]) {
 		[self processBindingOperationElement:el binding:binding];
 	}
 }
 
-- (void)processSoapBindingElement:(NSXMLElement *)el binding:(USBinding *)binding
-{
+- (void)processSoapBindingElement:(NSXMLElement *)el binding:(USBinding *)binding {
 	//This space intentionally left blank
 	//I don't know yet how this element might affect the generated code so I don't bother to parse it
 }
 
-- (void)processBindingOperationElement:(NSXMLElement *)el binding:(USBinding *)binding
-{
+- (void)processBindingOperationElement:(NSXMLElement *)el binding:(USBinding *)binding {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USOperation *operation = [binding.portType operationForName:name];
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processBindingOperationChildElement:(NSXMLElement*)child operation:operation];
 		}
 	}
 }
 
-- (void)processBindingOperationChildElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processBindingOperationChildElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"operation"]) {
+	if ([localName isEqualToString:@"operation"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapOperationElement:el operation:operation];
 		}
-	} else if([localName isEqualToString:@"input"]) {
+	} else if ([localName isEqualToString:@"input"]) {
 		[self processBindingOperationInputElement:el operation:operation];
-	} else if([localName isEqualToString:@"output"]) {
+	} else if ([localName isEqualToString:@"output"]) {
 		[self processBindingOperationOutputElement:el operation:operation];
-	} else if([localName isEqualToString:@"fault"]) {
+	} else if ([localName isEqualToString:@"fault"]) {
 		[self processBindingOperationFaultElement:el operation:operation];
 	}
 }
 
-- (void)processSoapOperationElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processSoapOperationElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	NSString *soapAction = [[el attributeForName:@"soapAction"] stringValue];
 	operation.soapAction = soapAction;
 }
 
-- (void)processBindingOperationInputElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processBindingOperationInputElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	[self processBindingOperationInterfaceElement:el operationInterface:operation.input];
 }
 
-- (void)processBindingOperationOutputElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processBindingOperationOutputElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	[self processBindingOperationInterfaceElement:el operationInterface:operation.output];
 }
 	
-- (void)processBindingOperationInterfaceElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface
-{
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+- (void)processBindingOperationInterfaceElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processBindingOperationInterfaceChildElement:(NSXMLElement*)child operationInterface:interface];
 		}
 	}
 }
 
-- (void)processBindingOperationInterfaceChildElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface
-{
+- (void)processBindingOperationInterfaceChildElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"header"]) {
+	if ([localName isEqualToString:@"header"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapHeaderElement:el operationInterface:interface];
 		}
-	} else if([localName isEqualToString:@"body"]) {
+	} else if ([localName isEqualToString:@"body"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapBodyElement:el operationInterface:interface];
 		}
 	}
 }
 
-- (void)processSoapHeaderElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface
-{
+- (void)processSoapHeaderElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface {
 	NSString *messageQName = [[el attributeForName:@"message"] stringValue];
 	NSString *uri = [[el resolveNamespaceForName:messageQName] stringValue];
 	USSchema *messageSchema = [interface.operation.portType.schema.wsdl schemaForNamespace:uri];
@@ -170,39 +159,35 @@
 
 }
 
-- (void)processSoapBodyElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface
-{
+- (void)processSoapBodyElement:(NSXMLElement *)el operationInterface:(USOperationInterface *)interface {
 	//This space intentionally left blank
 	//I don't know yet how this element might affect the generated code so I don't bother to parse it
 }
 
-- (void)processBindingOperationFaultElement:(NSXMLElement *)el operation:(USOperation *)operation
-{
+- (void)processBindingOperationFaultElement:(NSXMLElement *)el operation:(USOperation *)operation {
 	NSString *faultName = [[el attributeForName:@"name"] stringValue];
 	USOperationFault *fault = [operation faultForName:faultName];
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processBindingOperationFaultChildElement:(NSXMLElement*)child fault:fault];
 		}
 	}
 }
 
-- (void)processBindingOperationFaultChildElement:(NSXMLElement *)el fault:(USOperationFault *)fault
-{
+- (void)processBindingOperationFaultChildElement:(NSXMLElement *)el fault:(USOperationFault *)fault {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"fault"]) {
+	if ([localName isEqualToString:@"fault"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapFaultElement:el fault:fault];
 		}
 	}
 }
 
-- (void)processSoapFaultElement:(NSXMLElement *)el fault:(USOperationFault *)fault
-{
+- (void)processSoapFaultElement:(NSXMLElement *)el fault:(USOperationFault *)fault {
 	//This space intentionally left blank
 	//I don't know yet how this element might affect the generated code so I don't bother to parse it
 }

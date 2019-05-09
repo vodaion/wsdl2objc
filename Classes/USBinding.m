@@ -34,9 +34,8 @@
 @synthesize schema;
 @dynamic className;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.portType = [[USPortType new] autorelease];
         self.soapVersion = @"1.1";
@@ -46,39 +45,33 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [portType release];
     [soapVersion release];
     [super dealloc];
 }
 
-- (NSString *)className
-{
+- (NSString *)className {
 	NSString *result = [[self.name componentsSeparatedByCharactersInSet:kIllegalClassCharactersSet] componentsJoinedByString:@""];
-	if(![result.lowercaseString hasSuffix:@"binding"])
+	if (![result.lowercaseString hasSuffix:@"binding"])
 		result = [result stringByAppendingString:@"Binding"];
 	return result;
 }
 
-- (NSMutableArray *)operations
-{
+- (NSMutableArray *)operations {
 	return self.portType.operations;
 }
 
-- (NSString *)templateFileHPath
-{
+- (NSString *)templateFileHPath {
 	return [[NSBundle mainBundle] pathForTemplateNamed:@"Binding_H"];
 }
 
-- (NSString *)templateFileMPath
-{
+- (NSString *)templateFileMPath {
 	return [[NSBundle mainBundle] pathForTemplateNamed:@"Binding_M"];
 }
 
-- (NSDictionary *)templateKeyDictionary
-{
+- (NSDictionary *)templateKeyDictionary {
 	NSMutableDictionary *returning = [NSMutableDictionary dictionary];
 	
 	[returning setObject:self.name forKey:@"name"];

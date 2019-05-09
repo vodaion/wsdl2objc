@@ -31,14 +31,13 @@
 
 @implementation USParser (Messages)
 
-- (void)processMessageElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processMessageElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USMessage *message = [schema messageForName:name];
 	
-	if(!message.hasBeenParsed) {
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+	if (!message.hasBeenParsed) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processMessageChildElement:(NSXMLElement*)child message:message];
 			}
 		}
@@ -47,17 +46,15 @@
 	}
 }
 
-- (void)processMessageChildElement:(NSXMLElement *)el message:(USMessage *)message
-{
+- (void)processMessageChildElement:(NSXMLElement *)el message:(USMessage *)message {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"part"]) {
+	if ([localName isEqualToString:@"part"]) {
 		[self processPartElement:el message:message];
 	}
 }
 
-- (void)processPartElement:(NSXMLElement *)el message:(USMessage *)message
-{
+- (void)processPartElement:(NSXMLElement *)el message:(USMessage *)message {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USPart *part = [message partForName:name];
 	USElement *element = nil;
@@ -70,7 +67,7 @@
 		element = [elementSchema elementForName:elementLocalName];
 	} else {
 		NSString *typeQName = [[el attributeForName:@"type"] stringValue];
-		if(typeQName != nil) {
+		if (typeQName != nil) {
 			NSString *uri = [[el resolveNamespaceForName:typeQName] stringValue];
 			USSchema *elementSchema = [message.schema.wsdl schemaForNamespace:uri];
 			NSString *elementLocalName = [NSXMLNode localNameForName:typeQName];

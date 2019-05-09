@@ -32,9 +32,8 @@
 @synthesize address;
 @synthesize service;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.binding = nil;
 		self.address = nil;
@@ -44,8 +43,7 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [name release];
     [binding release];
     [address release];

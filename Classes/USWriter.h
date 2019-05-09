@@ -21,9 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "USWSDL.h"
 
 
+@class USWSDL;
 @interface USWriter : NSObject {
 	USWSDL *wsdl;
 	NSURL *outDir;

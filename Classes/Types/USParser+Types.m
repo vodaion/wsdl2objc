@@ -34,38 +34,35 @@
 @implementation USParser (Types)
 
 #pragma mark Types
-- (void)processTypesElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+- (void)processTypesElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processTypesChildElement:(NSXMLElement*)child wsdl:wsdl];
 		}
 	}
 }
 
-- (void)processTypesChildElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processTypesChildElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"schema"]) {
+	if ([localName isEqualToString:@"schema"]) {
 		[self processSchemaElement:el wsdl:wsdl];
-	} else if([localName isEqualToString:@"import"]) {
+	} else if ([localName isEqualToString:@"import"]) {
 		[self processImportElement:el wsdl:wsdl];
 	}
 }
 
 #pragma mark Types:Schema:SimpleType
-- (void)processSimpleTypeElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processSimpleTypeElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *typeName = [[el attributeForName:@"name"] stringValue];
 	
 	USType *type = [schema typeForName:typeName];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_simple;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processSimpleTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}
@@ -74,15 +71,14 @@
 	}
 }
 
-- (void)processSimpleTypeChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processSimpleTypeChildElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"restriction"]) {
+	if ([localName isEqualToString:@"restriction"]) {
 		[self processRestrictionElement:el type:type];
-	} else if([localName isEqualToString:@"union"]) {
+	} else if ([localName isEqualToString:@"union"]) {
 		[self processUnionElement:el type:type];
-	} else if([localName isEqualToString:@"list"]) {
+	} else if ([localName isEqualToString:@"list"]) {
 		[self processListElement:el type:type];
 	}
 }
@@ -98,8 +94,7 @@
 	NVLOG(@"TYPE IS: %@, %@", type.typeName, type.representationClass);
 }
 
-- (void)processRestrictionElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processRestrictionElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *base = [[el attributeForName:@"base"] stringValue];
 	
 	NSString *uri = [[el resolveNamespaceForName:base] stringValue];
@@ -109,32 +104,30 @@
 	USWSDL *wsdl = schema.wsdl;
 	
 	USType *baseType = [wsdl typeForNamespace:uri name:name];
-	if(baseType == nil) {
+	if (baseType == nil) {
 		type.representationClass = base;
 	} else {
-		if([baseType isSimpleType]) {
+		if ([baseType isSimpleType]) {
 			type.representationClass = baseType.representationClass;
 		}
 	}
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processRestrictionChildElement:(NSXMLElement*)child type:type];
 		}
 	}
 }
 
-- (void)processRestrictionChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processRestrictionChildElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"enumeration"]) {
+	if ([localName isEqualToString:@"enumeration"]) {
 		[self processEnumerationElement:el type:type];
 	}
 }
 
-- (void)processEnumerationElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processEnumerationElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *enumerationValue = [[el attributeForName:@"value"] stringValue];
 	// Get rid of the useless current local prefix if it exists
 	NSString *localPrefix = [[[type schema] localPrefix] stringByAppendingString:@":"];
@@ -147,17 +140,16 @@
 }
 
 #pragma mark Types:Schema:ComplexType
-- (void)processComplexTypeElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processComplexTypeElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *typeName = [[el attributeForName:@"name"] stringValue];
 	
 	USType *type = [schema typeForName:typeName];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_complex;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processComplexTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}
@@ -166,58 +158,54 @@
 	}
 }
 
-- (void)processComplexTypeChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processComplexTypeChildElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *localName = [el localName];
 	
-	if(([localName isEqualToString:@"sequence"]) ||
+	if (([localName isEqualToString:@"sequence"]) ||
 	   ([localName isEqualToString:@"choice"]) ||
-	   ([localName isEqualToString:@"any"])){
+	   ([localName isEqualToString:@"any"])) {
 		// TODO: Actually support choice and any with the proper templates
 		[self processSequenceElement:el type:type];
-	} else if([localName isEqualToString:@"attribute"]) {
+	} else if ([localName isEqualToString:@"attribute"]) {
 		[self processAttributeElement:el schema:nil type:type];
-	} else if([localName isEqualToString:@"complexContent"]) {
+	} else if ([localName isEqualToString:@"complexContent"]) {
 		[self processComplexContentElement:el type:type];
-	} else if([localName isEqualToString:@"simpleContent"]) {
+	} else if ([localName isEqualToString:@"simpleContent"]) {
 		[self processSimpleContentElement:el type:type];
 	}
 }
 
-- (void)processSequenceElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processSequenceElement:(NSXMLElement *)el type:(USType *)type {
 	NVLOG(@"PROCESSING SEQ/CHOICE/ANY: %@ (%@)", el.name, [[el parent] name]);
-	for(NSXMLNode *child in [el children]) {
+	for (NSXMLNode *child in [el children]) {
 		NSString *localName = [child localName];
-		if(([localName isEqualToString:@"sequence"]) ||
+		if (([localName isEqualToString:@"sequence"]) ||
 		   ([localName isEqualToString:@"choice"]) ||
 		   ([localName isEqualToString:@"any"])){
 			// don't properly handle choice and any yet, but encompass all their elements
 			// into the sequence as if it were one big sequence
 			[self processSequenceElement:(NSXMLElement*)child type:type];
 		}
-		if([child kind] == NSXMLElementKind) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processSequenceChildElement:(NSXMLElement*)child type:type];
 		}
 	}
 }
 
-- (void)processSequenceChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processSequenceChildElement:(NSXMLElement *)el type:(USType *)type {
 	NVLOG(@"PROCESSING: %@ (%@)", el.name, [[el parent] name]);
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"element"]) {
+	if ([localName isEqualToString:@"element"]) {
 		[self processSequenceElementElement:el type:type];
 	}
 }
 
-- (void)processSequenceElementElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processSequenceElementElement:(NSXMLElement *)el type:(USType *)type {
 	USSequenceElement *seqElement = [USSequenceElement new];
 	
 	NSXMLNode *refNode = [el attributeForName:@"ref"];
-	if(refNode != nil) {
+	if (refNode != nil) {
 		
 		NSString *elementQName = [refNode stringValue];
 		NSString *elementURI = [[el resolveNamespaceForName:elementQName] stringValue];
@@ -226,7 +214,7 @@
 		USSchema *schema = [type.schema.wsdl schemaForNamespace:elementURI];
 		USElement *element = [schema elementForName:elementLocalName];
 		
-		if(element.hasBeenParsed) {
+		if (element.hasBeenParsed) {
 			seqElement.name = element.name;
 			seqElement.type = element.type;
 			NVLOG(@"REF PARSED SEQELEMENT NAME: %@ (%@)", element.name, [[el parent] name]);
@@ -247,8 +235,8 @@
 			// The type is inline, as a subnode <complexType> or <simpleType>
 			prefixedType = name;
 			NSUInteger childIdx = 0;
-			for(NSXMLNode *child in [el children]) {			
-				if([[child localName] hasSuffix:@"Type"]) {
+			for (NSXMLNode *child in [el children]) {
+				if ([[child localName] hasSuffix:@"Type"]) {
 					// We found the type definition. Let's give it the element's name and send it over to the processor
 					[(NSXMLElement*)child addAttribute:[NSXMLNode attributeWithName:@"name" stringValue:prefixedType]];
 					[self processSchemaChildElement:(NSXMLElement*)child schema:type.schema];
@@ -271,17 +259,17 @@
 	}
 	
 	NSXMLNode *minOccursNode = [el attributeForName:@"minOccurs"];
-	if(minOccursNode != nil) {
+	if (minOccursNode != nil) {
 		seqElement.minOccurs = [[minOccursNode stringValue] intValue];
 	} else {
 		seqElement.minOccurs = 0;
 	}
 	
 	NSXMLNode *maxOccursNode = [el attributeForName:@"maxOccurs"];
-	if(maxOccursNode != nil) {
+	if (maxOccursNode != nil) {
 		NSString *maxOccursValue = [maxOccursNode stringValue];
 		
-		if([maxOccursValue isEqualToString:@"unbounded"]) {
+		if ([maxOccursValue isEqualToString:@"unbounded"]) {
 			seqElement.maxOccurs = -1;
 		} else {
 			seqElement.maxOccurs = [maxOccursValue intValue];
@@ -294,44 +282,39 @@
     [seqElement release];
 }
 
-- (void)processComplexContentElement:(NSXMLElement *)el type:(USType *)type
-{
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+- (void)processComplexContentElement:(NSXMLElement *)el type:(USType *)type {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processComplexContentChildElement:(NSXMLElement*)child type:type];
 		}
 	}
 }
 
-- (void)processComplexContentChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processComplexContentChildElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"extension"]) {
+	if ([localName isEqualToString:@"extension"]) {
 		[self processExtensionElement:el type:type];
 	}
 }
 
-- (void)processSimpleContentElement:(NSXMLElement *)el type:(USType *)type
-{
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+- (void)processSimpleContentElement:(NSXMLElement *)el type:(USType *)type {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processSimpleContentChildElement:(NSXMLElement*)child type:type];
 		}
 	}
 }
 
-- (void)processSimpleContentChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processSimpleContentChildElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"extension"]) {
+	if ([localName isEqualToString:@"extension"]) {
 		[self processExtensionElement:el type:type];
 	}
 }
 
-- (void)processExtensionElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processExtensionElement:(NSXMLElement *)el type:(USType *)type {
 	NSString *prefixedType = [[el attributeForName:@"base"] stringValue];
 	NSString *uri = [[el resolveNamespaceForName:prefixedType] stringValue];
 	NSString *typeName = [NSXMLNode localNameForName:prefixedType];
@@ -339,43 +322,41 @@
 	
 	type.superClass = baseType;
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processExtensionChildElement:(NSXMLElement*)child type:type];
 		}
 	}
 }
 
-- (void)processExtensionChildElement:(NSXMLElement *)el type:(USType *)type
-{
+- (void)processExtensionChildElement:(NSXMLElement *)el type:(USType *)type {
 //	NSLog(@"Processing extension: %@", [el description]);
 	[self processComplexTypeChildElement:el type:type];
 }
 
 #pragma mark Types:Schema:Element
-- (void)processElementElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processElementElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *elementName = [[el attributeForName:@"name"] stringValue];
 	USElement *element = [schema elementForName:elementName];
 	
-	if(!element.hasBeenParsed) {
+	if (!element.hasBeenParsed) {
 		NSString *prefixedType = [[el attributeForName:@"type"] stringValue];
 		
-		if(prefixedType != nil) {
+		if (prefixedType != nil) {
 			NSString *uri = [[el resolveNamespaceForName:prefixedType] stringValue];
 			NSString *typeName = [NSXMLNode localNameForName:prefixedType];
 			USType *type = [schema.wsdl typeForNamespace:uri name:typeName];
 			element.type = type;
 			
 		} else {
-			for(NSXMLNode *child in [el children]) {
-				if([child kind] == NSXMLElementKind) {
+			for (NSXMLNode *child in [el children]) {
+				if ([child kind] == NSXMLElementKind) {
 					[self processElementElementChildElement:(NSXMLElement*)child element:element];
 				}
 			}
 		}
 		
-		for(USSequenceElement *seqElement in element.waitingSeqElements) {
+		for (USSequenceElement *seqElement in element.waitingSeqElements) {
 			// NSLog(@"Assigning %@ for %@", element.name, seqElement);
 			seqElement.name = element.name;
 			seqElement.type = element.type;
@@ -384,26 +365,24 @@
 	}
 }
 
-- (void)processElementElementChildElement:(NSXMLElement *)el element:(USElement *)element
-{
+- (void)processElementElementChildElement:(NSXMLElement *)el element:(USElement *)element {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"simpleType"]) {
+	if ([localName isEqualToString:@"simpleType"]) {
 		[self processElementElementSimpleTypeElement:el element:element];
-	} else if([localName isEqualToString:@"complexType"]) {
+	} else if ([localName isEqualToString:@"complexType"]) {
 		[self processElementElementComplexTypeElement:el element:element];
 	}
 }
 
-- (void)processElementElementSimpleTypeElement:(NSXMLElement *)el element:(USElement *)element
-{
+- (void)processElementElementSimpleTypeElement:(NSXMLElement *)el element:(USElement *)element {
 	USType *type = [element.schema typeForName:element.name];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_simple;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processSimpleTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}
@@ -413,15 +392,14 @@
 	element.type = type;
 }
 
-- (void)processElementElementComplexTypeElement:(NSXMLElement *)el element:(USElement *)element
-{
+- (void)processElementElementComplexTypeElement:(NSXMLElement *)el element:(USElement *)element {
 	USType *type = [element.schema typeForName:element.name];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_complex;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processComplexTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}
@@ -434,8 +412,7 @@
 
 #pragma mark Types:Schema:Attribute
 
-- (void)processAttributeElement:(NSXMLElement *)el schema:(USSchema *)schema type:(USType *)type
-{
+- (void)processAttributeElement:(NSXMLElement *)el schema:(USSchema *)schema type:(USType *)type {
 	// If the schema is not nil, we assign the attribute to the schema
 	// Otherwise we assume the type is not nil and we assign the attribute to the type
 	
@@ -448,7 +425,7 @@
 	
 	// Check if it's a referred attribute
 	NSXMLNode *refNode = [el attributeForName:@"ref"];
-	if(refNode != nil) {
+	if (refNode != nil) {
 		
 		NSString *attributeQName = [refNode stringValue];
 		NSString *attributeURI = [[el resolveNamespaceForName:attributeQName] stringValue];
@@ -481,8 +458,8 @@
 			attributeType = [attribute.schema.wsdl typeForNamespace:uri name:typeName];
 			attribute.type = attributeType;
 		} else {
-			for(NSXMLNode *child in [el children]) {
-				if([child kind] == NSXMLElementKind) {
+			for (NSXMLNode *child in [el children]) {
+				if ([child kind] == NSXMLElementKind) {
 					[self processAttributeElementChildElement:(NSXMLElement*)child attribute:attribute];
 				}
 			}		
@@ -503,26 +480,24 @@
     [attribute release];
 }
 
-- (void)processAttributeElementChildElement:(NSXMLElement *)el attribute:(USAttribute *)attribute
-{
+- (void)processAttributeElementChildElement:(NSXMLElement *)el attribute:(USAttribute *)attribute {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"simpleType"]) {
+	if ([localName isEqualToString:@"simpleType"]) {
 		[self processAttributeElementSimpleTypeElement:el attribute:attribute];
 	} else if([localName isEqualToString:@"complexType"]) {
 		[self processAttributeElementComplexTypeElement:el attribute:attribute];
 	}
 }
 
-- (void)processAttributeElementSimpleTypeElement:(NSXMLElement *)el attribute:(USAttribute *)attribute
-{
+- (void)processAttributeElementSimpleTypeElement:(NSXMLElement *)el attribute:(USAttribute *)attribute {
 	USType *type = [attribute.schema typeForName:attribute.name];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_simple;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processSimpleTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}
@@ -532,15 +507,14 @@
 	attribute.type = type;
 }
 
-- (void)processAttributeElementComplexTypeElement:(NSXMLElement *)el attribute:(USAttribute *)attribute
-{
+- (void)processAttributeElementComplexTypeElement:(NSXMLElement *)el attribute:(USAttribute *)attribute {
 	USType *type = [attribute.schema typeForName:attribute.name];
 	
-	if(!type.hasBeenParsed) {
+	if (!type.hasBeenParsed) {
 		type.behavior = TypeBehavior_complex;
 		
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processComplexTypeChildElement:(NSXMLElement*)child type:type];
 			}
 		}

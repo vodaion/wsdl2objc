@@ -30,11 +30,10 @@
 
 @implementation USParser (Services)
 
-- (void)processServiceElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processServiceElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	
-	if([[[NSUserDefaults standardUserDefaults] objectForKey:@"addTagToServiceName"] boolValue]) {
+	if ([[[NSUserDefaults standardUserDefaults] objectForKey:@"addTagToServiceName"] boolValue]) {
 		name = [name stringByAppendingString:@"Svc"];
 	}
 	
@@ -42,24 +41,22 @@
 	
 	schema.wsdl.targetNamespace.prefix = name;
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processServiceChildElement:(NSXMLElement*)child service:service];
 		}
 	}
 }
 
-- (void)processServiceChildElement:(NSXMLElement *)el service:(USService *)service
-{
+- (void)processServiceChildElement:(NSXMLElement *)el service:(USService *)service {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"port"]) {
+	if ([localName isEqualToString:@"port"]) {
 		[self processPortElement:el service:service];
 	}
 }
 
-- (void)processPortElement:(NSXMLElement *)el service:(USService *)service
-{
+- (void)processPortElement:(NSXMLElement *)el service:(USService *)service {
 	NSString *name = [[el attributeForName:@"name"] stringValue];
 	USPort *port = [service portForName:name];
 	
@@ -71,20 +68,19 @@
 	
 	port.binding = binding;
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processPortChildElement:(NSXMLElement*)child port:port];
 		}
 	}
 }
 
-- (void)processPortChildElement:(NSXMLElement *)el port:(USPort *)port
-{
+- (void)processPortChildElement:(NSXMLElement *)el port:(USPort *)port {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"address"]) {
+	if ([localName isEqualToString:@"address"]) {
 		NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
-		if([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
+		if ([namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap/"] ||
 		   [namespace isEqualToString:@"http://schemas.xmlsoap.org/wsdl/soap12/"]) {
 			[self processSoapAddressElement:el port:port];
 		} else {
@@ -93,8 +89,7 @@
 	}
 }
 
-- (void)processSoapAddressElement:(NSXMLElement *)el port:(USPort *)port
-{
+- (void)processSoapAddressElement:(NSXMLElement *)el port:(USPort *)port {
 	NSString *location = [[el attributeForName:@"location"] stringValue];
     NSString *namespace = [[el resolveNamespaceForName:[el name]] stringValue];
 	port.address = location;

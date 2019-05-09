@@ -33,29 +33,25 @@
 #import "USSequenceElement.h"
 
 @implementation USParser
-- (id)initWithURL:(NSURL *)anURL
-{
-	if((self = [super init]))
-	{
+- (id)initWithURL:(NSURL *)anURL {
+	if ((self = [super init])) {
 		baseURL = [anURL retain];
 	}
 	
 	return self;
 }
 
-- (void)dealloc
-{
-	if(baseURL != nil) [baseURL release];
+- (void)dealloc {
+	if (baseURL != nil) [baseURL release];
 	[super dealloc];
 }
 
-- (USWSDL*)parse
-{
+- (USWSDL*)parse {
 	NSError *error = nil;
 	
 	NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:baseURL options:NSXMLNodeOptionsNone error:&error];
 	
-	if(error) {
+	if (error) {
 		NSLog(@"Unable to parse XML document from %@: %@", baseURL, error);
         [document release];
 		return nil;
@@ -63,7 +59,7 @@
 	
 	NSXMLElement *definitions = [document rootElement];
 	
-	if([[definitions localName] isNotEqualTo:@"definitions"]) {
+	if ([[definitions localName] isNotEqualTo:@"definitions"]) {
 		NSLog(@"Expected element named definitions, found %@", [definitions name]);
         [document release];
 		return nil;
@@ -78,40 +74,37 @@
 	return wsdl;
 }
 
-- (void)processDefinitionsElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processDefinitionsElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	NSString *targetNamespace = [[el attributeForName:@"targetNamespace"] stringValue];
 	USSchema *tns = [wsdl schemaForNamespace:targetNamespace];
 	wsdl.targetNamespace = tns;
 	tns.prefix = @"tns";
 	
-	for(NSXMLNode *child in [el children]) {
-		if([child kind] == NSXMLElementKind) {
+	for (NSXMLNode *child in [el children]) {
+		if ([child kind] == NSXMLElementKind) {
 			[self processDefinitionsChildElement:(NSXMLElement*)child wsdl:wsdl];
 		}
 	}
 }
 
-- (void)processDefinitionsChildElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processDefinitionsChildElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	NSString *localName = [el localName];
-	if([localName isEqualToString:@"types"]) {
+	if ([localName isEqualToString:@"types"]) {
 		[self processTypesElement:el wsdl:wsdl];
-	} else if([localName isEqualToString:@"import"]) {
+	} else if ([localName isEqualToString:@"import"]) {
 		[self processDefinitionsImportElement:el wsdl:wsdl];
-	} else if([localName isEqualToString:@"message"]) {
+	} else if ([localName isEqualToString:@"message"]) {
 		[self processMessageElement:el schema:wsdl.targetNamespace];
-	} else if([localName isEqualToString:@"portType"]) {
+	} else if ([localName isEqualToString:@"portType"]) {
 		[self processPortTypeElement:el schema:wsdl.targetNamespace];
-	} else if([localName isEqualToString:@"binding"]) {
+	} else if ([localName isEqualToString:@"binding"]) {
 		[self processBindingElement:el schema:wsdl.targetNamespace];
-	} else if([localName isEqualToString:@"service"]) {
+	} else if ([localName isEqualToString:@"service"]) {
 		[self processServiceElement:el schema:wsdl.targetNamespace];
 	}
 }
 
-- (void)processDefinitionsImportElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processDefinitionsImportElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	[self processImportElement:el wsdl:wsdl];
 	
 	NSString *namespace = [[el attributeForName:@"namespace"] stringValue];
@@ -119,8 +112,7 @@
 	[wsdl.targetNamespace.imports addObject:importedSchema];
 }
 
-- (void)processImportElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processImportElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	NSString *schemaLocation = [[el attributeForName:@"schemaLocation"] stringValue];
 	
 	if (schemaLocation != nil) {
@@ -133,7 +125,7 @@
 		NSError *error = nil;
 		NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:location options:NSXMLNodeOptionsNone error:&error];
 		
-		if(error) {
+		if (error) {
             NSLog(@"Unable to parse XML document from %@ (ignored): %@", location, error);
             [document release];
 			return;
@@ -141,7 +133,7 @@
 		
 		NSXMLElement *schemaElement = [document rootElement];
 		
-		if([[schemaElement localName] isNotEqualTo:@"schema"]) {
+		if ([[schemaElement localName] isNotEqualTo:@"schema"]) {
 			NSLog(@"During schema import, expected element named schema, found %@", [schemaElement name]);
             [document release];
 			return;
@@ -162,7 +154,7 @@
 		NSError *error = nil;
 		NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:location options:NSXMLNodeOptionsNone error:&error];
 		
-		if(error) {
+		if (error) {
             NSLog(@"Unable to parse XML document from %@ (ignored): %@", location, error);
             [document release];
 			return;
@@ -170,7 +162,7 @@
 		
 		NSXMLElement *definitionsElement = [document rootElement];
 		
-		if([[definitionsElement localName] isNotEqualTo:@"definitions"]) {
+		if ([[definitionsElement localName] isNotEqualTo:@"definitions"]) {
 			NSLog(@"During definitions import, expected element named definitions, found %@", [definitionsElement name]);
             [document release];
 			return;
@@ -192,8 +184,7 @@
 	}
 }
 
-- (void)processSchemaElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl
-{
+- (void)processSchemaElement:(NSXMLElement *)el wsdl:(USWSDL *)wsdl {
 	NSString *schemaNamespace = [[el attributeForName:@"targetNamespace"] stringValue];
 	
 	USSchema *schema = [wsdl schemaForNamespace:schemaNamespace];
@@ -202,7 +193,7 @@
 	BOOL prefixCreated = NO;
 	NSUInteger i = 1;
 	while (!prefixCreated) {
-		if(prefix == nil) {
+		if (prefix == nil) {
 			schema.prefix = nil;
 			prefixCreated = YES;
 		} else {
@@ -218,13 +209,13 @@
 		}
 	}
 	
-	if(!schema.hasBeenParsed) {
-		for(NSXMLNode *child in [el children]) {
-			if([child kind] == NSXMLElementKind) {
+	if (!schema.hasBeenParsed) {
+		for (NSXMLNode *child in [el children]) {
+			if ([child kind] == NSXMLElementKind) {
 				[self processSchemaChildElement:(NSXMLElement*)child schema:schema];
 			}
 		}
-		for(NSXMLNode *ns in [el namespaces]) {
+		for (NSXMLNode *ns in [el namespaces]) {
 			[self processNamespace:ns wsdl:wsdl];
 		}
 		
@@ -258,38 +249,35 @@
 	NSLog(@"Finished Dumping schema: %@", schema.fullName);*/
 }
 
-- (void)processNamespace:(NSXMLNode *)ns wsdl:(USWSDL *)wsdl
-{
+- (void)processNamespace:(NSXMLNode *)ns wsdl:(USWSDL *)wsdl {
 	NSString *uri = [ns stringValue];
 	NSString *prefix = [ns localName];
 	
-	if(prefix != nil && [prefix isNotEqualTo:@"xmlns"]) {
-		if([wsdl existingSchemaForPrefix:prefix] == nil) {
+	if (prefix != nil && [prefix isNotEqualTo:@"xmlns"]) {
+		if ([wsdl existingSchemaForPrefix:prefix] == nil) {
 			USSchema *schema = [wsdl schemaForNamespace:uri];
 			schema.prefix = [[prefix stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] == 0 ? nil : prefix;
 		}
 	}
 }
 
-- (void)processSchemaChildElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processSchemaChildElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	NSString *localName = [el localName];
 	
-	if([localName isEqualToString:@"import"]) {
+	if ([localName isEqualToString:@"import"]) {
 		[self processSchemaImportElement:el schema:schema];
-	} else if([localName isEqualToString:@"simpleType"]) {
+	} else if ([localName isEqualToString:@"simpleType"]) {
 		[self processSimpleTypeElement:el schema:schema];
-	} else if([localName isEqualToString:@"complexType"]) {
+	} else if ([localName isEqualToString:@"complexType"]) {
 		[self processComplexTypeElement:el schema:schema];
-	} else if([localName isEqualToString:@"element"]) {
+	} else if ([localName isEqualToString:@"element"]) {
 		[self processElementElement:el schema:schema];
-	} else if([localName isEqualToString:@"attribute"]) {
+	} else if ([localName isEqualToString:@"attribute"]) {
 		[self processAttributeElement:el schema:schema type:nil];
 	}
 }
 
-- (void)processSchemaImportElement:(NSXMLElement *)el schema:(USSchema *)schema
-{
+- (void)processSchemaImportElement:(NSXMLElement *)el schema:(USSchema *)schema {
 	[self processImportElement:el wsdl:schema.wsdl];
 	
 	NSString *uri = [[el attributeForName:@"namespace"] stringValue];

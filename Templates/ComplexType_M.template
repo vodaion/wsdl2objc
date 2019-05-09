@@ -10,9 +10,8 @@
 %ENDIF
 %ENDIF
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 %IFDEF IsAttributedString
 _content = nil;
 %ENDIF
@@ -39,8 +38,7 @@ _content = nil;
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
 %IFNDEF superClass
 	[soapSigner release];
 %ENDIF
@@ -64,20 +62,15 @@ _content = nil;
 	[super dealloc];
 }
 
-- (NSString *)nsPrefix
-{
+- (NSString *)nsPrefix {
 	return @"%«schema.prefix»";
 }
 
-- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName elementNSPrefix:(NSString *)elNSPrefix
-{
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName elementNSPrefix:(NSString *)elNSPrefix {
 	NSString *nodeName = nil;
-	if(elNSPrefix != nil && [elNSPrefix length] > 0)
-	{
+	if (elNSPrefix != nil && [elNSPrefix length] > 0) {
 		nodeName = [NSString stringWithFormat:@"%@:%@", elNSPrefix, elName];
-	}
-	else
-	{
+	} else {
 		nodeName = [NSString stringWithFormat:@"%@:%@", @"%«schema.prefix»", elName];
 	}
 
@@ -102,8 +95,7 @@ _content = nil;
 	return node;
 }
 
-- (void)addAttributesToNode:(xmlNodePtr)node
-{
+- (void)addAttributesToNode:(xmlNodePtr)node {
 %IFDEF superClass
 %IF superClassIsComplex
 	[super addAttributesToNode:node];
@@ -112,7 +104,7 @@ _content = nil;
 	
 %IFDEF attributes
 %FOREACH attribute in attributes
-	if(self.%«attribute.name» != 0) {
+	if (self.%«attribute.name» != 0) {
 %IFEQ attribute.type.assignOrRetain retain
 		xmlSetProp(node, (const xmlChar*)"%«attribute.wsdlName»", [[self.%«attribute.name» description] xmlString]);
 %ELSIFEQ attribute.type.typeName boolean
@@ -142,8 +134,7 @@ _content = nil;
 %ENDIF
 }
 
-- (void)addElementsToNode:(xmlNodePtr)node
-{
+- (void)addElementsToNode:(xmlNodePtr)node {
 %IFDEF superClass
 %IF superClassIsComplex
 	[super addElementsToNode:node];
@@ -152,11 +143,11 @@ _content = nil;
 	
 %IFDEF sequenceElements
 %FOREACH element in sequenceElements
-	if(self.%«element.name» != 0) {
+	if (self.%«element.name» != 0) {
 %IFEQ element.type.assignOrRetain retain
 
 %IF element.useAnArray
-		for(%«element.type.classNameWithPtr» child in self.%«element.name») {
+		for (%«element.type.classNameWithPtr» child in self.%«element.name») {
 			xmlAddChild(node, [child xmlNodeForDoc:node->doc elementName:@"%«element.wsdlName»" elementNSPrefix:@"%«schema.prefix»"]);
 		}
 %ELSE
@@ -184,7 +175,7 @@ _content = nil;
 %ELSIFNEQ element.type.enumCount 0
 
 %IF element.useAnArray
-		for(NSNumber *intRepresentation in self.%«element.name») {
+		for (NSNumber *intRepresentation in self.%«element.name») {
 			%«element.type.className» enumRepresentation = (%«element.type.className»)[intRepresentation intValue];
 			xmlNewChild(node, NULL, (const xmlChar*)"%«element.wsdlName»", [%«element.type.className»_stringFromEnum(enumRepresentation) xmlString]);
 		}
@@ -211,8 +202,7 @@ _content = nil;
 
 @synthesize %«element.name»;
 
-- (void)add%«element.uname»:(%«element.type.classNameWithPtr»)toAdd
-{
+- (void)add%«element.uname»:(%«element.type.classNameWithPtr»)toAdd {
 %IFEQ element.type.assignOrRetain assign
 	[%«element.name» addObject:[NSNumber numberWithInt:(int)toAdd]];
 %ELSE
@@ -233,8 +223,7 @@ _content = nil;
 /* attributes */
 %IFDEF attributes
 
-- (NSDictionary *)attributes
-{
+- (NSDictionary *)attributes {
 	NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
 %FOREACH attribute in attributes
 %IFEQ attribute.type.assignOrRetain retain
@@ -255,8 +244,7 @@ _content = nil;
 %ENDIF
 
 
-+ (%«classNameWithPtr»)deserializeNode:(xmlNodePtr)cur
-{
++ (%«classNameWithPtr»)deserializeNode:(xmlNodePtr)cur {
 	%«className» *newObject = [[%«className» new] autorelease];
 	
 %IFDEF IsAttributedString
@@ -274,8 +262,7 @@ _content = nil;
 	return newObject;
 }
 
-- (void)deserializeAttributesFromNode:(xmlNodePtr)cur
-{
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur {
 
 %IFDEF superClass
 %IF superClassIsComplex
@@ -289,7 +276,7 @@ _content = nil;
 	
 %FOREACH attribute in attributes
 	attrValue = xmlGetProp(cur, (const xmlChar *) "%«attribute.wsdlName»");
-	if(attrValue != NULL) {
+	if (attrValue != NULL) {
 		attrString = [NSString stringWithCString:(char*)attrValue encoding:NSUTF8StringEncoding];
 
 %IFEQ attribute.type.typeName boolean
@@ -367,8 +354,7 @@ _content = nil;
 %ENDIF
 }
 
-- (void)deserializeElementsFromNode:(xmlNodePtr)cur
-{
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur {
 	
 %IFDEF superClass
 %IF superClassIsComplex
@@ -377,23 +363,23 @@ _content = nil;
 %ENDIF
 	
 %IF hasSequenceElements
-	for( cur = cur->children ; cur != NULL ; cur = cur->next ) {
-		if(cur->type == XML_ELEMENT_NODE) {
+	for ( cur = cur->children ; cur != NULL ; cur = cur->next ) {
+		if (cur->type == XML_ELEMENT_NODE) {
 			xmlChar *elementText = xmlNodeListGetString(cur->doc, cur->children, 1);
 			NSString *elementString = nil;
 			
-			if(elementText != NULL) {
+			if (elementText != NULL) {
 				elementString = [NSString stringWithCString:(char*)elementText encoding:NSUTF8StringEncoding];
 				[elementString self]; // avoid compiler warning for unused var
 				xmlFree(elementText);
 			}
 %FOREACH element in sequenceElements
-			if(xmlStrEqual(cur->name, (const xmlChar *) "%«element.wsdlName»")) {
+			if (xmlStrEqual(cur->name, (const xmlChar *) "%«element.wsdlName»")) {
 %IFEQ element.type.assignOrRetain retain
 				
 				Class elementClass = nil;
 				xmlChar *instanceType = xmlGetNsProp(cur, (const xmlChar *) "type", (const xmlChar *) "http://www.w3.org/2001/XMLSchema-instance");
-				if(instanceType == NULL) {
+				if (instanceType == NULL) {
 					elementClass = [%«element.type.classNameWithoutPtr» class];
 				} else {
 					NSString *elementTypeString = [NSString stringWithCString:(char*)instanceType encoding:NSUTF8StringEncoding];
@@ -401,7 +387,7 @@ _content = nil;
 					NSArray *elementTypeArray = [elementTypeString componentsSeparatedByString:@":"];
 					
 					NSString *elementClassString = nil;
-					if([elementTypeArray count] > 1) {
+					if ([elementTypeArray count] > 1) {
 						NSString *prefix = [elementTypeArray objectAtIndex:0];
 						NSString *localName = [elementTypeArray objectAtIndex:1];
 						
@@ -421,7 +407,7 @@ _content = nil;
 				id newChild = [elementClass deserializeNode:cur];
 				
 %IF element.useAnArray
-				if(newChild != nil) [self.%«element.name» addObject:newChild];
+				if (newChild != nil) [self.%«element.name» addObject:newChild];
 %ELSE
 				self.%«element.name» = newChild;
 %ENDIF

@@ -30,10 +30,8 @@
 @synthesize schema;
 @synthesize type;
 
-- (id)init
-{
-	if((self = [super init]))
-	{
+- (id)init {
+	if ((self = [super init])) {
 		self.name = @"";
 		self.wsdlName = @"";
 		self.schema = nil;
@@ -43,16 +41,14 @@
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
 	[name release];
 	[wsdlName release];
 	[attributeDefault release];
 	[super dealloc];
 }
 
-- (NSDictionary *)templateKeyDictionary
-{
+- (NSDictionary *)templateKeyDictionary {
 	NSMutableDictionary *returning = [NSMutableDictionary dictionary];
 	
 	[returning setObject:self.name forKey:@"name"];
@@ -62,17 +58,15 @@
 	return returning;
 }
 
-- (NSString *)name
-{
+- (NSString *)name {
 	return name;
 }
 
-- (void)setName:(NSString *)aName
-{
+- (void)setName:(NSString *)aName {
 	USObjCKeywords *keywords = [USObjCKeywords sharedInstance];
 	
 	self.wsdlName = aName;
-	if([keywords isAKeyword:aName]) {
+	if ([keywords isAKeyword:aName]) {
 		aName = [NSString stringWithFormat:@"%@_", aName];
 	}
 	

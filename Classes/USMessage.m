@@ -32,9 +32,8 @@
 @synthesize hasBeenParsed;
 @synthesize schema;
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		self.name = nil;
 		self.parts = [NSMutableArray array];
 		self.hasBeenParsed = NO;
@@ -44,17 +43,15 @@
 	return self;
 }
 
-- (void) dealloc
-{
+- (void)dealloc {
     [name release];
     [parts release];
     [super dealloc];
 }
 
-- (USPart *)partForName:(NSString *)aName
-{
-	for(USPart *part in self.parts) {
-		if([part.name isEqualToString:aName]) {
+- (USPart *)partForName:(NSString *)aName {
+	for (USPart *part in self.parts) {
+		if ([part.name isEqualToString:aName]) {
 			return part;
 		}
 	}

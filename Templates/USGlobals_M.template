@@ -6,18 +6,16 @@ USGlobals *sharedInstance = nil;
 
 @synthesize wsdlStandardNamespaces;
 
-+ (USGlobals *)sharedInstance
-{
-	if(sharedInstance == nil) {
++ (USGlobals *)sharedInstance {
+	if (sharedInstance == nil) {
 		sharedInstance = [[USGlobals alloc] init];
 	}
 	
 	return sharedInstance;
 }
 
-- (id)init
-{
-	if((self = [super init])) {
+- (id)init {
+	if ((self = [super init])) {
 		wsdlStandardNamespaces = [[NSMutableDictionary alloc] init];
 	}
 	

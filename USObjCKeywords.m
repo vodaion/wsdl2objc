@@ -26,22 +26,20 @@ static USObjCKeywords *sharedInstance = nil;
 
 @implementation USObjCKeywords
 
-+ (USObjCKeywords *)sharedInstance
-{
-	if(sharedInstance == nil) {
++ (USObjCKeywords *)sharedInstance {
+	if (sharedInstance == nil) {
 		sharedInstance = [USObjCKeywords new];
 	}
 	
 	return sharedInstance;
 }
 
-- (id)init
-{
+- (id)init {
 	// Also included here are standard Mac/iPhone typedefs that might
 	// be likely names of attributes as these cause the compiler to
 	// complain as well.
 
-	if((self = [super init])) {
+	if ((self = [super init])) {
 		keywords = [NSArray arrayWithObjects:
 					@"id",
 					@"for",
@@ -107,12 +105,11 @@ static USObjCKeywords *sharedInstance = nil;
 	return self;
 }
 
-- (BOOL)isAKeyword:(NSString *)testString
-{
+- (BOOL)isAKeyword:(NSString *)testString {
   // Compiler objects to things with the same name as keywords even if the
   // case differs, so convert to lower case for the test.
   
-	if([keywords containsObject:[testString lowercaseString]]) {
+	if ([keywords containsObject:[testString lowercaseString]]) {
 		return YES;
 	}
 	
