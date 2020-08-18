@@ -32,7 +32,7 @@ If you are building an iPhone project also perform the following:
 
 Using the generated code
 You can use a given web service as follows:
-
+```objc
 #import "MyWebService.h"
 
 MyWebServiceBinding *binding = [MyWebService MyWebServiceBinding];
@@ -62,14 +62,14 @@ for(id bodyPart in responseBodyParts) {
     // ... Handle ns2_MyBodyResponse ...
   }
 }
-
-Example
+```
+# Example
 
 Assume the following:
     A SOAP service called "Friends"
     A SOAP method called GetFavoriteColor that has a request attribute called Friend, and a response attribute called Color (i.e. you're asking it to return you the favorite color for a given a friend)
     All the methods in this service ask for basic HTTP authentication, using a username and password that you acquired from the user via text fields
-
+```objc
 - (IBAction)pressedRequestButton:(id)sender {
     FriendsBinding *bFriends = [[FriendsService FriendsBinding] retain];
     bFriends.logXMLInOut = YES;
@@ -112,13 +112,13 @@ Assume the following:
 // ...
 
 }
-
-Advanced Options
+```
+# Advanced Options
 
 The given example above covers basic authentication, as implemented in versions 0.6 and 0.7-pre1.
 The code in trunk has changed to support some more advanced security options, including advanced authentication and SOAP Security.
 To get a brief introduction to this features please follow this http://code.google.com/p/wsdl2objc/wiki/AdvancedOptions'>link.
-NOTE
+#NOTE
 
 If a WSDL has defined a string type that has attributes, then wsdl2objc will map it to a generic NSObject with a property called "content" which will hold the actual string.
 So if you want to use the string, you have to call object.content. If you want its attributes, they're also properties of the object.
