@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="PurchaseOrderProcess" targetNamespace="http://www.yoerg.net"
+xmlns="http://schemas.xmlsoap.org/wsdl/"
+xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:tns="http://www.yoerg.net" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<types>
+<schema targetNamespace="http://www.yoerg.net"
+xmlns="http://www.w3.org/2001/XMLSchema"
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<element name="sendPurchaseOrder" type="tns:sendPORequest"/>
+<element name="correlations" type="tns:correlationset"/>
+<element name="portType" type="xsd:string"/>
+<element name="partnerLink" type="xsd:string"/>
+<element name="sendSchedule" type="tns:sendScheduleRequest"/>
+<element name="sendInvoice" type="tns:sendInvoiceRequest"/>
+<complexType name="correlationsetvalues">
+<sequence>
+<element name="PurchaseOrderNumber" type="xsd:string"/>
+<element name="customerID" type="xsd:string"/>
+</sequence>
+</complexType>
+<complexType name="correlationset">
+<sequence>
+<element name="PurchaseOrder" type="tns:correlationsetvalues"/>
+</sequence>
+</complexType>
+<complexType name="sendPORequest">
+<sequence>
+<element name="customerId" type="xsd:long"/>
+<element name="purchaseOrderNumber" type="xsd:long"/>
+<element name="productId" type="xsd:long"/>
+<element name="quantity" type="xsd:int"/>
+</sequence>
+</complexType>
+<complexType name="sendScheduleRequest">
+<sequence>
+<element name="shipDate" type="xsd:dateTime"/>
+<element name="customerId" type="xsd:long"/>
+<element name="purchaseOrderNumber" type="xsd:long"/>
+</sequence>
+</complexType>
+<complexType name="sendInvoiceRequest">
+<sequence>
+<element name="price" type="xsd:double"/>
+<element name="customerId" type="xsd:long"/>
+<element name="purchaseOrderNumber" type="xsd:long"/>
+</sequence>
+</complexType>
+</schema>
+</types>
+<message name="newMessage">
+<part element="tns:sendPurchaseOrder" name="sendPurchaseOrderBody"/>
+<part element="tns:correlations" name="correlationsBody"/>
+<part element="tns:portType" name="portTypeBody"/>
+<part element="tns:partnerLink" name="partnerLinkBody"/>
+</message>
+<message name="sendPurchaseOrderResponseMessage"/>
+<message name="sendScheduleRequestMessage">
+<part element="tns:sendSchedule" name="sendScheduleBody"/>
+<part element="tns:correlations" name="correlationBody"/>
+<part element="tns:portType" name="portTypeBody"/>
+<part element="tns:partnerLink" name="partnerLinkBody"/>
+</message>
+<message name="sendInvoiceRequestMessage">
+<part element="tns:sendInvoice" name="sendInvoiceBody"/>
+<part element="tns:correlations" name="correlationsBody"/>
+<part element="tns:portType" name="portTypeBody"/>
+<part element="tns:partnerLink" name="partnerLinkBody"/>
+</message>
+<portType name="purchaseOrderPortType">
+<operation name="sendMyPurchaseOrder">
+<input message="tns:newMessage" name="sendPurchaseOrderRequest"/>
+<output message="tns:sendPurchaseOrderResponseMessage"
+name="sendPurchaseOrderResponse"/>
+</operation>
+<operation name="sendMySchedule">
+<input message="tns:sendScheduleRequestMessage" name="sendMySchedule"/>
+</operation>
+<operation name="sendInvoice">
+<input message="tns:sendInvoiceRequestMessage" name="sendInvoice"/>
+</operation>
+</portType>
+<binding name="purchaseOrderSOAPBinding" type="tns:purchaseOrderPortType">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<operation name="sendMyPurchaseOrder">
+<soap:operation soapAction="" style="document"/>
+<input name="sendPurchaseOrderRequest">
+<soap:body use="literal"/>
+</input>
+<output name="sendPurchaseOrderResponse">
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="sendMySchedule">
+<soap:operation soapAction="" style="document"/>
+<input name="sendMySchedule">
+<soap:body use="literal"/>
+</input>
+</operation>
+<operation name="sendInvoice">
+<soap:operation soapAction="" style="document"/>
+<input name="sendInvoice">
+<soap:body use="literal"/>
+</input>
+</operation>
+</binding>
+<service name="ListenerServiceService">
+<port binding="tns:purchaseOrderSOAPBinding" name="ListenerService">
+<soap:address location="http://localhost:8080/axis/services/ListenerService"/>
+<http-conf:client/>
+<http-conf:server/>
+</port>
+</service>
+</definitions>
